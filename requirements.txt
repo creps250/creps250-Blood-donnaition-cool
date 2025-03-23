@@ -1,0 +1,12 @@
+pandas==2.2.3
+requests==2.32.2
+scikit-learn==1.4.2
+plotly==5.22.0
+dash==2.18.1
+fanalysis==0.0.1
+numpy==1.26.4
+dash_iconify==0.1.2
+dash_bootstrap_components==1.6.0
+geopy==2.4.1
+folium==0.19.5
+geopandas==1.0.1
