@@ -11,3 +11,4 @@ geopy==2.4.1
 folium==0.19.5
 geopandas==1.0.1
 openpyxl==3.1.2
+wordcloud==1.9.3
