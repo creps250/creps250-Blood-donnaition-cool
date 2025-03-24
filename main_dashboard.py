@@ -428,5 +428,5 @@ def create_card_style(theme):
 
 # Lancer l'application
 if __name__ == '__main__':
-    
-    app.run_server(debug=True)
+    # Modification: écouter sur toutes les interfaces (0.0.0.0) au lieu de localhost
+    app.run_server(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
