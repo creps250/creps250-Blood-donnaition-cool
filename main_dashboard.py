@@ -8,9 +8,41 @@ from pages.pge_analyse_elgibillite import *
 from pages.pge_evolution_temporelle import *
 from pages.pge_analyse_predictives import *
 from app import *
+import google.generativeai as genai
+import markdown2
+import re
 
 #application Dash
+# Configuration de l'API Gemini
+GEMINI_API_KEY = 'AIzaSyBBedcqWYgt62f2zWrn-Tqm334HNXOd7vI'
+genai.configure(api_key=GEMINI_API_KEY)
 
+
+# Initialisation du modèle Gemini
+model = genai.GenerativeModel('models/gemini-2.0-flash-thinking-exp-01-21')
+
+def safe_markdown_to_children(text):
+    """
+    Convertit le markdown en un paragraphe unique Dash
+    """
+    # Convertir le markdown en HTML
+    html_text = markdown2.markdown(text, extras=['fenced-code-blocks', 'tables'])
+    
+    # Supprimer les balises HTML tout en préservant la structure des paragraphes
+    plain_text = re.sub(r'</?[^>]+>', ' ', html_text).strip()
+    
+    # Créer un paragraphe unique
+    return html.P(
+        plain_text, 
+        style={
+            'lineHeight': '1.6', 
+            'color': '#333', 
+            'fontSize': '16px'
+        }
+    )
+    
+    
+    
 # Conserver les routes de navigation originales
 PAGES = {
     "/": {"name": "Répartition Géographique", "icon": "carbon:map"},
@@ -147,7 +179,36 @@ app.layout = html.Div([
                             className="ml-2",
                             size="sm",
                             style={'marginLeft': '10px', 'background': 'transparent', 'color': 'white', 'border': '1px solid rgba(255,255,255,0.5)', 'borderRadius': '4px'}
-                        )
+                        ),
+                        html.Button(
+                            Icon(
+                                icon="mdi:robot-outline",  # Une icône de robot/IA
+                                width=24,
+                                height=24,
+                                style={
+                                    'color': 'white'
+                                }
+                            ),
+                            id='open-ai-frame-btn', 
+                            n_clicks=0,
+                            style={
+                                'position': 'fixed',
+                                'bottom': '20px', 
+                                'right': '20px',
+                                'zIndex': '1000',
+                                'backgroundColor': '#007bff',
+                                'borderRadius': '50%',
+                                'width': '50px',
+                                'height': '50px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'border': 'none',
+                                'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                                'cursor': 'pointer'
+                            }
+                        ),
+                        
                     ], className="d-flex align-items-center ml-3")
                 ], className="d-flex justify-content-end align-items-center h-100")
             ], className="col-md-6")
@@ -165,7 +226,61 @@ app.layout = html.Div([
         'position': 'relative',
         'bottom': '0',
         'textAlign': 'center'
-    })
+    }),
+    # Cadre IA
+    html.Div([
+        html.Div([
+            html.H2('Assistant IA ', style={'color': '#333', 'borderBottom': '2px solid #007bff', 'paddingBottom': '10px'}),
+            
+            html.Div(
+                id='conversation-container', 
+                style={
+                    'height': '400px', 
+                    'overflowY': 'auto', 
+                    'marginBottom': '10px',
+                    'border': '1px solid #ddd',
+                    'padding': '10px',
+                    'backgroundColor': '#f9f9f9'
+                }
+            ),
+            
+            html.Div([
+                dcc.Input(
+                    id='user-input', 
+                    type='text', 
+                    placeholder='Posez votre question...',
+                    style={
+                        'width': '80%', 
+                        'marginRight': '10px',
+                        'padding': '8px',
+                        'borderRadius': '4px',
+                        'border': '1px solid #ddd'
+                    }
+                ),
+                
+                html.Button('Envoyer', id='send-btn', n_clicks=0, style={
+                    'backgroundColor': '#007bff',
+                    'color': 'white',
+                    'border': 'none',
+                    'padding': '8px 15px',
+                    'borderRadius': '4px'
+                })
+            ], style={'display': 'flex'})
+        ], style={
+            'background': 'white', 
+            'padding': '20px', 
+            'borderRadius': '10px', 
+            'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+            'width': '600px'
+        })
+    ], id='ai-frame', style={
+    'display': 'none',
+    'position': 'fixed',
+    'top': '50%',
+    'right': '5%',  # 5% depuis le bord droit
+    'transform': 'translateY(-50%)',
+    'zIndex': '1000'
+})
     
 ], id='main-container', style={'fontFamily': 'Arial, sans-serif', 'display': 'flex', 'flexDirection': 'column', 'minHeight': '100vh'})
 
@@ -208,6 +323,9 @@ def update_navigation(pathname, current_title):
     spacer_height = '80px' if title_length < 25 else '100px'
     
     return page_title, nav_buttons, {'height': spacer_height}
+
+# Contenu principal
+
 
 # Callback pour mettre à jour l'apparence du bouton de thème
 @app.callback(
@@ -426,7 +544,90 @@ def create_card_style(theme):
             'marginBottom': '20px'
         }
 
+
+
+# Callback pour afficher/masquer le cadre d'IA
+@app.callback(
+    Output('ai-frame', 'style'),
+    [Input('open-ai-frame-btn', 'n_clicks')]
+)
+def toggle_ai_frame(n_clicks):
+    if n_clicks % 2 == 1:
+        return {
+            'display': 'block', 
+            'position': 'fixed', 
+            'top': '50%', 
+            'left': '50%', 
+            'transform': 'translate(-50%, -50%)', 
+            'zIndex': '1000'
+        }
+    return {'display': 'none'}
+
+# Callback pour générer la réponse de l'IA
+@app.callback(
+    [Output('conversation-container', 'children'),
+     Output('user-input', 'value')],
+    [Input('send-btn', 'n_clicks')],
+    [State('user-input', 'value'),
+     State('conversation-container', 'children')]
+)
+def generate_ai_response(n_clicks, user_input, current_conversation):
+    if not n_clicks or not user_input:
+        return current_conversation or [], ''
+    
+    if not current_conversation:
+        current_conversation = []
+    
+    # Message de l'utilisateur
+    user_message = html.Div([
+        html.Strong('Vous : ', style={'color': '#495057'}), 
+        html.Span(user_input, style={'color': '#212529'})
+    ], style={
+        'marginBottom': '10px', 
+        'textAlign': 'right',
+        'padding': '8px',
+        'backgroundColor': '#e9ecef',
+        'borderRadius': '5px'
+    })
+    
+    # Génération de la réponse de l'IA
+    try:
+        response = model.generate_content(user_input)
+        
+        # Convertir le markdown en un paragraphe unique
+        formatted_children = safe_markdown_to_children(response.text)
+        
+        ai_message = html.Div([
+            html.Strong('IA : ', style={'color': '#007bff'}), 
+            html.Div(
+                formatted_children,
+                style={'backgroundColor': '#f1f3f5', 'padding': '10px', 'borderRadius': '5px'}
+            )
+        ], style={'marginBottom': '10px', 'textAlign': 'left'})
+        
+        # Mettre à jour l'historique de conversation
+        updated_conversation = current_conversation + [user_message, ai_message]
+        
+        return updated_conversation, ''
+    
+    except Exception as e:
+        error_message = html.Div([
+            html.Strong('Erreur : ', style={'color': 'red'}), 
+            html.Span(str(e), style={'color': '#721c24'})
+        ], style={
+            'backgroundColor': '#f8d7da', 
+            'padding': '10px', 
+            'borderRadius': '5px',
+            'marginBottom': '10px'
+        })
+        
+        return current_conversation + [user_message, error_message], ''
+
+
+
+        
+
 # Lancer l'application
 if __name__ == '__main__':
-    # Modification: écouter sur toutes les interfaces (0.0.0.0) au lieu de localhost
+    
     app.run_server(debug=True)

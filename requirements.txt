@@ -13,3 +13,6 @@ geopandas==1.0.1
 openpyxl==3.1.2
 wordcloud==1.9.3
 gunicorn==23.0.0
+plotly_calplot==0.1.20
+markdown2==2.5.3
+google-generativeai==0.8.4

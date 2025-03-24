@@ -9,6 +9,7 @@ from sklearn.metrics import silhouette_score
 from fanalysis.mca import MCA
 from sklearn.cluster import KMeans
 from prossess_data.prossess import corrige_date
+import plotly_calplot
 
 
 def Plot_genre(data,var_,title=''):
@@ -460,5 +461,47 @@ def create_acm_eligibility_dashboard(data=data_final, variables=None):
     # Personnaliser les axes du scatter plot
     fig.update_xaxes(title_text="Axe 1", row=1, col=2)
     fig.update_yaxes(title_text="Axe 2", row=1, col=2)
+    
+    return fig
+
+def prepare_calendar_data(df):
+    # Compter le nombre d'occurrences par date
+    date_counts = df['Date de remplissage de la fiche'].value_counts().reset_index()
+    date_counts.columns = ['Date', 'Nombre']
+   
+    # Convertir la colonne de date en datetime si ce n'est pas déjà le cas
+    date_counts['Date'] = pd.to_datetime(date_counts['Date'])
+   
+    # Filtrer uniquement pour les années 2019 et 2020
+    date_counts = date_counts[date_counts['Date'].dt.year.isin([2019])]
+   
+    return date_counts
+
+
+def create_calendar_heatmap(df):
+    # Créer un Series avec la date comme index et le nombre comme valeurs
+    date_counts = prepare_calendar_data(df)
+    data_series = date_counts.set_index('Date')['Nombre']
+    
+    # Utiliser plotly_calplot pour créer la visualisation
+    fig = plotly_calplot.calplot(
+        date_counts,
+        x='Date',
+        y='Nombre',
+        title='Calendrier des remplissages de fiches',
+        colorscale='plasma',
+        showscale=True,
+        month_lines_width=3, 
+        month_lines_color="#fff",
+        dark_theme=False
+        
+    )
+    
+    # Ajuster la mise en page 
+    fig.update_layout(
+        height=400,
+        width=1000,
+        title_x=0.5
+    )
     
     return fig

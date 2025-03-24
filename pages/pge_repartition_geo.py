@@ -185,19 +185,27 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                                 placeholder="modalite2",
                                 style={**style_dropdow,'width':'120px'}
                             ),
+                            # Bouton de localisation ajouté ici
+                            html.Button(
+                                DashIconify(icon="mdi:crosshairs-gps", width=20),
+                                id="btn-location",
+                                className="btn btn-outline-primary ms-2",
+                                style={"height": "38px", "width": "38px", "padding": "6px"}
+                            ),
                         ],
-                        className="d-flex align-items-center justify-content-end"
+                        className="d-flex align-items-center justify-content-end flex-wrap"
                     ),
                     className="ms-auto"
                 ),
             ]),
             className="d-flex align-items-right"
         ),
-        dbc.CardBody(dcc.Graph(
-                figure=cartographie_quartier(var1="Temporairement Non-eligible",var2 ="Eligible" ),id='carto-graph',
+        dbc.CardBody(
+            dcc.Graph(
+                figure=Carte_arrondissement(data_name=communes,variable_name="Prop Candidats aux dons",titre="Proportion des candidats aux dons",label_name='Arrondissement de résidence',legend_name="donnateurs"),id='carto-graph',
                 responsive=True,
                 style={'height': '360px'}
-            ), style={'height': '380px'})
+            ), style={'height': '380px'},id='carte')
     ],style=card_style)
     
     return html.Div([
@@ -443,11 +451,33 @@ def update_dropdown(value,var):
 
 ### mise a jours de la carte
 @app.callback(
-    Output('carto-graph', 'figure'),
+    Output("carte", "children"),
     [Input('var-1', 'value'),
     Input('var-2','value')],
     prevent_initial_call=True
 )
 def update_dropdown(value1,value2):
     
-    return cartographie_quartier(var1=value1,var2 =value2 )
+    return dcc.Graph(
+                figure=cartographie_quartier(var1=value1,var2 =value2 ),
+                responsive=True,
+                style={'height': '360px'}
+            )
+
+
+
+@app.callback(
+    Output("carte", "children",allow_duplicate=True),
+    Input("btn-location", "n_clicks"),
+    prevent_initial_call=True
+)
+def update_map(n_clicks):
+    if n_clicks:
+        # Assurez-vous que coord_quart est disponible dans ce scope
+        # Vous pourriez avoir besoin de le charger ici ou de le passer via un State
+        return html.Iframe(
+            id='map', 
+            srcDoc=CarteFolium(coord_quart, "Femme", "Homme"), 
+            width='100%', 
+            height='340'
+        )

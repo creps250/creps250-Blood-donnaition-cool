@@ -146,22 +146,28 @@ def page_trois(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, 
     dbc.Col([
         dbc.Card([
             dbc.CardHeader([
-                html.Div([
-                    # Icône et titre à gauche
                     html.Div([
-                        DashIconify(
-                            icon="mdi:account-group",
-                            width=24,
-                            height=24,
-                            style={"margin-right": "5px", "margin-left": "5px", "color": "#3A7AB9"}
-                        ),
-                        html.Span("Modèles de comportement et éligibilité des donneurs", style={"vertical-align": "middle"})
-                    ], style={"display": "flex", "align-items": "center"}),
-                ], style={"display": "flex", "justify-content": "space-between", "align-items": "center", "width": "100%"})
-            ], className="p-0"),
+                        # Icône et titre à gauche
+                        html.Div([
+                            DashIconify(
+                                icon="mdi:account-group",
+                                width=24,
+                                height=24,
+                                style={"margin-right": "5px", "margin-left": "5px", "color": "#3A7AB9"}
+                            ),
+                            html.Span("Modèles de comportement et éligibilité des donneurs", style={"vertical-align": "middle"})
+                        ], style={"display": "flex", "align-items": "center"}),
+                        
+                        # Boutons à droite
+                        html.Div([
+                            dbc.Button("Calendrier", color="primary", outline=True, size="sm", className="me-2",id="btn-calendar"),
+                            dbc.Button("Modèles de comportement", color="primary", outline=True, size="sm",id="btn-modele")
+                        ], style={"display": "flex", "align-items": "center"})
+                    ], style={"display": "flex", "justify-content": "space-between", "align-items": "center", "width": "100%"})
+                ], className="p-0"),
             dbc.CardBody([
                 dcc.Graph(
-                    figure=create_acm_eligibility_dashboard(data=data_final, variables=None),
+                    figure=create_calendar_heatmap(data_final),#create_acm_eligibility_dashboard(data=data_final, variables=None),
                     responsive=True, style={'height': 480}, id='acm-eligibility'
                 )
             ])
@@ -179,6 +185,32 @@ def page_trois(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, 
 def update_graph(selected_value):
     # Mise à jour du graphique en fonction de la sélection
     return Plot_genre(data_don, selected_value, f'Repartition du {selected_value} des donneurs de sang')
+
+
+
+
+
+
+@app.callback(
+    Output("acm-eligibility", "figure"),
+    [Input("btn-calendar", "n_clicks"), 
+     Input("btn-modele", "n_clicks")],
+    prevent_initial_call=True
+)
+def update_output(calendar_clicks, modele_clicks):
+    # Récupérer le bouton qui a été cliqué
+    ctx = dash.callback_context
+    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    if trigger_id == "btn-calendar":
+        # Générer le heatmap du calendrier
+        return create_calendar_heatmap(data_final)
+    elif trigger_id == "btn-modele":
+        # Générer le dashboard d'éligibilité
+        return create_acm_eligibility_dashboard(data=data_final, variables=None)
+    
+    # Par défaut, ne rien afficher
+    return {}
 
 
 @app.callback(
@@ -209,34 +241,3 @@ def update_graph(selected_value, n_clicks):
     
     # Default case (should not normally happen)
     return retourn_evolution_mois(data_don)
-
-
-@dash.callback(
-    Output('fig-evol-mois', 'figure'),
-    [Input('caract-menu', 'value'),
-     Input('filtre-mois', 'n_clicks')],
-    prevent_initial_call=True
-)
-def update_graph(selected_value, n_clicks):
-    """
-    Update the figure based on selected characteristic and filter button clicks.
-    """
-    triggered_id = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
-
-    # Initial state (no trigger yet)
-    if not triggered_id:
-        # Returns the default graph
-        return retourn_evolution_mois(data_don)
-
-    # Characteristic dropdown change
-    if triggered_id == 'caract-menu':
-        return plot_mois_vars_counts(var_=selected_value, title=f'Répartition du nombre de dons au fil des mois par {selected_value}')
-
-    # Filter button click
-    if triggered_id == 'filtre-mois':
-        # Return all data
-        return retourn_evolution_mois(data_don)
-
-    # Default case
-    return retourn_evolution_mois(data_don)
-

@@ -1,0 +1,41 @@
+/* Mode colonne pour les cartes */
+.dash-card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+/* Chaque carte prend toute la largeur disponible */
+.dash-card {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* Si vous utilisez un layout de grille quelque part */
+.dash-grid-container {
+    display: grid;
+    grid-template-columns: 1fr !important; /* Force une seule colonne */
+    gap: 15px;
+}
+
+/* Pour cibler spécifiquement les éléments de votre image */
+.card-icon-container {
+    flex-direction: column;
+}
+
+/* Pour assurer que ça fonctionne sur tous les appareils */
+@media (max-width: 1200px) {
+    .row {
+        flex-direction: column;
+    }
+    
+    /* Si vous utilisez des colonnes Bootstrap ou similaires */
+    [class*="col-"] {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+}
+
+

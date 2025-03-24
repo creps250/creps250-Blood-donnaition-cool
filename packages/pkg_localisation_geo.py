@@ -8,6 +8,7 @@ from geopy.geocoders import Nominatim
 import pandas as pd
 import folium
 from prossess_data.process_temporelle import data_final
+from branca.element import Figure
 
 ### import data
 path = "dataset/DD.shp"
@@ -147,7 +148,8 @@ def Carte_arrondissement(data_name,variable_name,label_name,legend_name,titre) :
     )
     # Affichage de la carte
     return fig
-
+# Appel de la fonction
+######  Carte_arrondissement(data_name=communes,variable_name="Prop Candidats aux dons",titre="Proportion des candidats aux dons",label_name='Arrondissement de résidence',legend_name="donnateurs")
 
 ##>>> two map
 def cartographie_quartier(var1="Temporairement Non-eligible",var2 ="Eligible" ):
@@ -170,7 +172,9 @@ def cartographie_quartier(var1="Temporairement Non-eligible",var2 ="Eligible" ):
     return fig
  
   
- 
+
+
+
 #####Repartition quartier
 def repartition_donneurs_sang(data=data_final,var_='A-t-il (elle) déjà donné le sang',title='Répartition des donneurs de sang'):
     elegibilite_counts = data[var_].value_counts().reset_index()
@@ -367,3 +371,45 @@ def create_blood_donation_sankey(data=data_final):
     
     return fig
 
+
+
+def CarteFolium(df, var1, var2,douala_gdf=douala_gdf):
+    # Supprimer les lignes avec des NaN dans Latitude ou Longitude
+    coord_quart_cleaned = df.dropna(subset=['Latitude', 'Longitude'])
+    
+    # Créer une carte centrée sur les coordonnées moyennes
+    m = folium.Map(location=[coord_quart_cleaned["Latitude"].mean(), coord_quart_cleaned["Longitude"].mean()], zoom_start=10)
+
+    # Ajouter des marqueurs pour chaque point de données
+    for _, row in coord_quart_cleaned.iterrows():
+        folium.Marker(
+            location=[row["Latitude"], row["Longitude"]],
+            popup=f"dr: {row['dr']}<br>Homme: {row[var1]}<br>Femme: {row[var2]}",
+            tooltip=row["dr"]
+        ).add_to(m)
+        
+        # Cercle pour "Eligible"
+        folium.Circle(
+            location=[row['Latitude'], row['Longitude']],
+            radius=row[var1],  # Ajuster la taille
+            color="green",
+            fill=True,
+            fill_color="red",
+            fill_opacity=1,
+            tooltip=f"{row[var2]} éligibles"
+        ).add_to(m)
+
+    # Définir le CRS pour douala_gdf AVANT de l'utiliser dans Choropleth
+    # Assurez-vous que cette variable est définie dans votre scope ou passée en argument
+    
+    # Définir le CRS (WGS84 est standard pour les cartes web)
+    douala_gdf.crs = "EPSG:4326"  
+    
+    # Maintenant vous pouvez l'utiliser dans Choropleth
+    polygone = folium.Choropleth(geo_data=douala_gdf)
+    polygone.add_to(m)
+    
+    return m._repr_html_()
+
+# appel de la fonction
+###   CarteFolium(coord_quart,"Femme","Homme")
