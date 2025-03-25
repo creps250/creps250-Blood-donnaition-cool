@@ -192,8 +192,10 @@ correspondance = {
 }
 
 
-
-data =pd.read_excel('dataset/Challenge dataset.xlsx')
+try:
+    data =pd.read_excel('dataset/Challenge dataset.xlsx')
+except:
+    data =pd.read_excel('dataset/Challenge dataset - Copie.xlsx')   
 
 
 ###################prosess data

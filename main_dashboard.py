@@ -8,6 +8,8 @@ from pages.pge_analyse_elgibillite import *
 from pages.pge_evolution_temporelle import *
 from pages.pge_analyse_predictives import *
 from app import *
+import os
+import base64
 import google.generativeai as genai
 import markdown2
 import re
@@ -180,23 +182,57 @@ app.layout = html.Div([
                             size="sm",
                             style={'marginLeft': '10px', 'background': 'transparent', 'color': 'white', 'border': '1px solid rgba(255,255,255,0.5)', 'borderRadius': '4px'}
                         ),
+                        
+                        # New File Upload Button
+                        dcc.Upload(
+                            id='upload-excel',
+                            children=html.Button(
+                                Icon(
+                                    icon="mdi:file-excel-outline",  # Excel file icon
+                                    width=24,
+                                    height=24,
+                                    style={
+                                        'color': 'white'
+                                    }
+                                ),
+                                style={
+                                    'position': 'fixed',
+                                    'bottom': '140px',  # Positioned above the other buttons
+                                    'right': '20px',
+                                    'zIndex': '1000',
+                                    'backgroundColor': '#217346',  # Excel green color
+                                    'borderRadius': '50%',
+                                    'width': '50px',
+                                    'height': '50px',
+                                    'display': 'flex',
+                                    'alignItems': 'center',
+                                    'justifyContent': 'center',
+                                    'border': 'none',
+                                    'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                                    'cursor': 'pointer'
+                                }
+                            ),
+                            multiple=False,  # Allow only single file upload
+                            accept='.xlsx, .xls, .csv'  # Limit to Excel file types
+                        ),
+                        
+                        html.A(
                         html.Button(
                             Icon(
-                                icon="mdi:robot-outline",  # Une icône de robot/IA
+                                icon="mdi:file-document-edit-outline",  # Icône de formulaire
                                 width=24,
                                 height=24,
                                 style={
                                     'color': 'white'
                                 }
                             ),
-                            id='open-ai-frame-btn', 
-                            n_clicks=0,
+                            id='form-btn', 
                             style={
                                 'position': 'fixed',
-                                'bottom': '20px', 
+                                'bottom': '80px',  # Décalé de 60px par rapport au bouton de chatbot
                                 'right': '20px',
                                 'zIndex': '1000',
-                                'backgroundColor': '#007bff',
+                                'backgroundColor': '#28a745',  # Vert pour différencier du bouton de chatbot
                                 'borderRadius': '50%',
                                 'width': '50px',
                                 'height': '50px',
@@ -208,12 +244,78 @@ app.layout = html.Div([
                                 'cursor': 'pointer'
                             }
                         ),
+                        href='https://ee.kobotoolbox.org/x/V0ByU4TJ',
+                        target='_blank'  # Ouvre dans un nouvel onglet
+                    ),
+                    
+                    html.Button(
+                        Icon(
+                            icon="mdi:robot-outline",  # Une icône de robot/IA
+                            width=24,
+                            height=24,
+                            style={
+                                'color': 'white'
+                            }
+                        ),
+                        id='open-ai-frame-btn', 
+                        n_clicks=0,
+                        style={
+                            'position': 'fixed',
+                            'bottom': '20px', 
+                            'right': '20px',
+                            'zIndex': '1000',
+                            'backgroundColor': '#007bff',
+                            'borderRadius': '50%',
+                            'width': '50px',
+                            'height': '50px',
+                            'display': 'flex',
+                            'alignItems': 'center',
+                            'justifyContent': 'center',
+                            'border': 'none',
+                            'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                            'cursor': 'pointer'
+                        }
+                    ),
                         
                     ], className="d-flex align-items-center ml-3")
                 ], className="d-flex justify-content-end align-items-center h-100")
-            ], className="col-md-6")
+            ], className="col-md-6"),
+            html.Div(
+                id='custom-modal',
+                style={
+                    'position': 'fixed',
+                    'top': '50%',
+                    'left': '50%',
+                    'transform': 'translate(-50%, -50%)',
+                    'backgroundColor': 'white',
+                    'padding': '20px',
+                    'borderRadius': '10px',
+                    'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                    'zIndex': '1100',
+                    'display': 'none',
+                    'textAlign': 'center',
+                    'width': '300px'
+                },
+                children=[
+                    html.Div(id='modal-content', style={'marginBottom': '15px'}),
+                    html.Button(
+                        'OK', 
+                        id='modal-close-btn', 
+                        style={
+                            'backgroundColor': '#28a745',
+                            'color': 'white',
+                            'border': 'none',
+                            'padding': '10px 20px',
+                            'borderRadius': '5px',
+                            'cursor': 'pointer'
+                        }
+                    )
+                ]
+            )
+            
         ], className="row align-items-center")
     ], id='header', style={'padding': '15px', 'position': 'fixed', 'top': '0', 'width': '100%', 'zIndex': '1000'}),
+    
     
     html.Div(id="header-spacer", style={'height': '80px'}),
     
@@ -227,6 +329,7 @@ app.layout = html.Div([
         'bottom': '0',
         'textAlign': 'center'
     }),
+    
     # Cadre IA
     html.Div([
         html.Div([
@@ -563,6 +666,16 @@ def toggle_ai_frame(n_clicks):
         }
     return {'display': 'none'}
 
+
+CONTEXT = """
+Tu es un assistant spécialisé dans l'analyse des dons de sang. 
+Tu peux aider à comprendre :
+- Les statistiques de dons
+- L'éligibilité au don
+- L'importance du don de sang
+- Les informations médicales liées aux dons
+"""
+
 # Callback pour générer la réponse de l'IA
 @app.callback(
     [Output('conversation-container', 'children'),
@@ -590,6 +703,7 @@ def generate_ai_response(n_clicks, user_input, current_conversation):
         'borderRadius': '5px'
     })
     
+    user_input = f"{CONTEXT}\n\nQuestion de l'utilisateur : {user_input}"
     # Génération de la réponse de l'IA
     try:
         response = model.generate_content(user_input)
@@ -625,7 +739,89 @@ def generate_ai_response(n_clicks, user_input, current_conversation):
 
 
 
+
+# Définir le dossier de destination pour les uploads
+UPLOAD_DIRECTORY = "./dataset"
+if not os.path.exists(UPLOAD_DIRECTORY):
+    os.makedirs(UPLOAD_DIRECTORY)
+
+
+# Callback pour gérer l'upload et le modal
+@app.callback(
+    [Output('custom-modal', 'style'),
+     Output('modal-content', 'children')],
+    [Input('upload-excel', 'contents'),
+     Input('modal-close-btn', 'n_clicks')],
+    [State('upload-excel', 'filename')],
+    prevent_initial_call=True
+)
+def handle_file_upload(contents, close_clicks, filename):
+    ctx = dash.callback_context
+    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    # Style de base pour masquer/afficher le modal
+    base_style = {
+        'position': 'fixed',
+        'top': '50%',
+        'left': '50%',
+        'transform': 'translate(-50%, -50%)',
+        'backgroundColor': 'white',
+        'padding': '20px',
+        'borderRadius': '10px',
+        'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+        'zIndex': '1100',
+        'textAlign': 'center',
+        'width': '300px'
+    }
+    
+    # Logique d'upload de fichier
+    if trigger_id == 'upload-excel' and contents is not None:
+        try:
+            # Décoder et sauvegarder le fichier
+            content_type, content_string = contents.split(',')
+            decoded = base64.b64decode(content_string)
+            
+            # Nom de fichier fixe
+            fixed_filename = "Challenge dataset.xlsx"
+            file_path = os.path.join(UPLOAD_DIRECTORY, fixed_filename)
+            
+            # Supprimer le fichier existant s'il existe
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            
+            # Sauvegarder le fichier avec le nouveau nom
+            with open(file_path, 'wb') as file:
+                file.write(decoded)
+            
+            # Afficher le modal de succès
+            success_style = base_style.copy()
+            success_style['display'] = 'block'
+            
+            return success_style, html.Div([
+                html.H4("Fichier Uploader avec  Succes", style={'color': 'green'}),
+                html.P(f"Le fichier a été uploadé sous le nom {fixed_filename}")
+            ])
         
+        except Exception as e:
+            # Afficher le modal d'erreur
+            error_style = base_style.copy()
+            error_style['display'] = 'block'
+            
+            return error_style, html.Div([
+                html.H4("Erreur d'Upload", style={'color': 'red'}),
+                html.P(f"Une erreur est survenue : {str(e)}")
+            ])
+    
+    # Fermer le modal
+    if trigger_id == 'modal-close-btn':
+        close_style = base_style.copy()
+        close_style['display'] = 'none'
+        return close_style, []
+    
+    # Style par défaut (masqué)
+    default_style = base_style.copy()
+    default_style['display'] = 'none'
+    return default_style, []    
 
 # Lancer l'application
 if __name__ == '__main__':
