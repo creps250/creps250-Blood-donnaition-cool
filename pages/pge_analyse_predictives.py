@@ -204,7 +204,7 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                                         {"label": "Musulman", "value": "Musulman"},
                                         {"label": "Pas Précisé", "value": "Pas Précisé"}
                                     ],
-                                    value="Pas Précisé",
+                                    value="Chrétien (Catholique)",
                                     style={'borderRadius': '5px'},
                                     className="mb-3"
                                 )
@@ -215,12 +215,29 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                         dbc.Row([
                             dbc.Col([
                                 html.Label("Profession", style={'fontWeight': 'bold', 'marginBottom': '5px'}),
-                                dcc.Input(
+                                dcc.Dropdown(
                                     id="profession",
-                                    type="text",
-                                    placeholder="Profession",
-                                    style={'width': '100%', 'padding': '8px', 'borderRadius': '5px', 'border': '1px solid #ccc'},
-                                    className="mb-3"
+                                    options = [
+                                        {"label": "Agent de sécurité", "value": "Agent de sécurité"},
+                                        {"label": "Agent immobilier", "value": "Agent immobilier"},
+                                        {"label": "Assistant administratif", "value": "Assistant administratif"},
+                                        {"label": "Commerçant", "value": "Commerçant"},
+                                        {"label": "Conducteur", "value": "Conducteur"},
+                                        {"label": "Électricien", "value": "Électricien"},
+                                        {"label": "Enseignant", "value": "Enseignant"},
+                                        {"label": "Étudiant-Eleve", "value": "Étudiant-Eleve"},
+                                        {"label": "Informaticien", "value": "Informaticien"},
+                                        {"label": "Infirmier", "value": "Infirmier"},
+                                        {"label": "Ingénieur", "value": "Ingénieur"},
+                                        {"label": "Personnel de santé", "value": "Personnel de santé"},
+                                        {"label": "Sans emploi", "value": "Sans emploi"},
+                                        {"label": "Technicien", "value": "Technicien"},
+                                        {"label": "Autres", "value": "Autres"}
+                                        
+                                        ],
+                                        placeholder="Profession",
+                                        style={'width': '100%', 'padding': '8px', 'borderRadius': '5px', 'border': '1px solid #ccc'},
+                                        className="mb-3"
                                 )
                             ], width=6),
                             
@@ -437,7 +454,6 @@ def toggle_date_dernier_don(a_deja_donne):
     State("a_deja_donne", "value"),
     State("mois_dernier_don", "value"),
     State("annee_dernier_don", "value"),
-    # Nouveaux champs ajoutés
     State("profession", "value"),
     State("taille", "value"),
     State("poids", "value"),

@@ -7,8 +7,11 @@ from prossess_data.prossess import data_final
 from app import *
 from dash.dependencies import Input, Output, State
 
+card_style={}
 
 def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_theme):
+    
+    global card_style
     
     if theme == 'light':
         card_style = {'backgroundColor': light_theme['cardBg']}
@@ -141,72 +144,94 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
             ), style={'height': '390px'})
     ],style=card_style)
 
+    
     card4 = dbc.Card([
-        dbc.CardHeader(
-            dbc.Row([
-                # Titre à gauche
-                dbc.Col(
+                dbc.CardHeader(
                     html.Div(
                         [
-                            DashIconify(icon="mdi:map-marker", width=20),
-                            html.Span("Cartographie des zones enquêtes")
+                            # Partie gauche avec icône et titre
+                            html.Div(
+                                [
+                                    DashIconify(icon="mdi:map-marker", width=20),
+                                    html.Span("Cartographie des zones enquêtes",style={'fontsize':'10px'})
+                                ],
+                                className="d-flex align-items-center gap-2"
+                            ),
+                            
+                            # Partie droite avec dropdowns et boutons
+                            html.Div(
+                                [
+                                    dcc.Dropdown(
+                                        id="variable",
+                                        options=[
+                                            {"label": i, "value": i} for i in geo_vars
+                                        ],
+                                        placeholder="variable",
+                                        className="me-2",
+                                        style={**style_dropdow,'width':'100px'}
+                                    ),
+                                    dcc.Dropdown(
+                                        id="var-1",
+                                        options=[
+                                            {"label": "Option 1", "value": "opt1"}
+                                        ],
+                                        placeholder="modalite1",
+                                        className="me-2",
+                                        style={**style_dropdow,'width':'100px'}
+                                    ),
+                                    dcc.Dropdown(
+                                        id="var-2",
+                                        options=[
+                                            {"label": "Option 1", "value": "opt1"},
+                                        ],
+                                        placeholder="modalite2",
+                                        style={**style_dropdow,'width':'100px'}
+                                    ),
+                                    # Boutons de localisation et plein écran
+                                    html.Div([
+                                        html.Button(
+                                            DashIconify(icon="mdi:crosshairs-gps", width=20),
+                                            id="btn-location",
+                                            className="btn btn-outline-primary ms-2",
+                                            style={"height": "38px", "width": "38px", "padding": "6px"}
+                                        ),
+                                        html.Button(
+                                            DashIconify(icon="mdi:fullscreen", width=20),
+                                            id="btn-fullscreen",
+                                            className="btn btn-outline-primary ms-2",
+                                            style={"height": "38px", "width": "38px", "padding": "6px"}
+                                        ),
+                                        html.Button(
+                                            DashIconify(icon="mdi:fullscreen-exit", width=20),
+                                            id="btn-exit-fullscreen",
+                                            className="btn btn-outline-primary ms-2",
+                                            style={
+                                                "height": "38px", 
+                                                "width": "38px", 
+                                                "padding": "6px", 
+                                                "display": "none"
+                                            }
+                                        )
+                                    ], className="d-flex align-items-center")
+                                ],
+                                className="d-flex align-items-center justify-content-end flex-wrap"
+                            ),
                         ],
-                        className="d-flex align-items-center gap-2"
-                    ),
-                    width="auto"
+                        className="d-flex justify-content-between align-items-center w-100"
+                    )
                 ),
-                # Combobox à droite
-                dbc.Col(
-                    html.Div(
-                        [
-                            dcc.Dropdown(
-                                id="variable",
-                                options=[
-                                    {"label": i, "value": i} for i in geo_vars
-                                ],
-                                placeholder="variable",
-                                className="me-2",
-                                style={**style_dropdow,'width':'120px'}
-                            ),
-                            dcc.Dropdown(
-                                id="var-1",
-                                options=[
-                                    {"label": "Option 1", "value": "opt1"}
-                                ],
-                                placeholder="modalite1",
-                                className="me-2",
-                                style={**style_dropdow,'width':'120px'}
-                            ),
-                            dcc.Dropdown(
-                                id="var-2",
-                                options=[
-                                    {"label": "Option 1", "value": "opt1"},
-                                ],
-                                placeholder="modalite2",
-                                style={**style_dropdow,'width':'120px'}
-                            ),
-                            # Bouton de localisation ajouté ici
-                            html.Button(
-                                DashIconify(icon="mdi:crosshairs-gps", width=20),
-                                id="btn-location",
-                                className="btn btn-outline-primary ms-2",
-                                style={"height": "38px", "width": "38px", "padding": "6px"}
-                            ),
-                        ],
-                        className="d-flex align-items-center justify-content-end flex-wrap"
-                    ),
-                    className="ms-auto"
-                ),
-            ]),
-            className="d-flex align-items-right"
-        ),
-        dbc.CardBody(
-            dcc.Graph(
-                figure=Carte_arrondissement(data_name=communes,variable_name="Prop Candidats aux dons",titre="Proportion des candidats aux dons",label_name='Arrondissement de résidence',legend_name="donnateurs"),id='carto-graph',
-                responsive=True,
-                style={'height': '360px'}
-            ), style={'height': '380px'},id='carte')
-    ],style=card_style)
+                dbc.CardBody(
+                    dcc.Graph(
+                        figure=Carte_arrondissement(data_name=communes,variable_name="Prop Candidats aux dons",titre="Proportion des candidats aux dons",label_name='Arrondissement de résidence',legend_name="donnateurs"),
+                        id='carto-graph',
+                        responsive=True,
+                        style={'height': '360px'}
+                    ), 
+                    style={'height': '380px'},
+                    id='carte'
+                )
+            ],style=card_style, id='card4')
+    
     
     return html.Div([
         # Texte explicatif
@@ -481,3 +506,86 @@ def update_map(n_clicks):
             width='100%', 
             height='340'
         )
+        
+
+
+
+
+
+@app.callback(
+    [Output('card4', 'style'),  # Target the entire card
+     Output('btn-fullscreen', 'style'),
+     Output('btn-exit-fullscreen', 'style')],
+    [Input('btn-fullscreen', 'n_clicks'),
+     Input('btn-exit-fullscreen', 'n_clicks')],
+    prevent_initial_call=True
+)
+def toggle_card_fullscreen(n_clicks_fullscreen, n_clicks_exit):
+    ctx = callback_context
+    
+    # Default card style (matching the original)
+    default_card_style = {
+        'backgroundColor': card_style.get('backgroundColor', 'white'),
+        'width': '100%',  # Ensure full width of container
+        'height': 'auto',  # Allow content to define height
+        'transition': 'all 0.3s ease'
+    }
+    
+    # Fullscreen style that preserves original card characteristics
+    fullscreen_card_style = {
+        'position': 'fixed',
+        'top': '0',
+        'left': '0',
+        'width': '100vw',
+        'height': '100vh',
+        'zIndex': '1000',
+        'backgroundColor': card_style.get('backgroundColor', 'white'),
+        'padding': '20px',
+        'boxSizing': 'border-box',
+        'transition': 'all 0.3s ease',
+        'display': 'flex',
+        'flexDirection': 'column'
+    }
+    
+    # Consistent button styles
+    fullscreen_btn_style = {
+        'height': '38px', 
+        'width': '38px', 
+        'padding': '6px',
+        'display': 'block'
+    }
+    
+    exit_fullscreen_btn_style = {
+        'height': '38px', 
+        'width': '38px', 
+        'padding': '6px',
+        'display': 'none'
+    }
+    
+    if not ctx.triggered:
+        return default_card_style, fullscreen_btn_style, exit_fullscreen_btn_style
+    
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    if button_id == 'btn-fullscreen':
+        # Fullscreen mode
+        fullscreen_btn_style['display'] = 'none'
+        exit_fullscreen_btn_style['display'] = 'block'
+        return fullscreen_card_style, fullscreen_btn_style, exit_fullscreen_btn_style
+    
+    elif button_id == 'btn-exit-fullscreen':
+        # Normal mode
+        fullscreen_btn_style['display'] = 'block'
+        exit_fullscreen_btn_style['display'] = 'none'
+        return default_card_style, fullscreen_btn_style, exit_fullscreen_btn_style
+    
+    return default_card_style, fullscreen_btn_style, exit_fullscreen_btn_style  
+   
+   
+   
+   
+   
+   
+   
+   
+   
