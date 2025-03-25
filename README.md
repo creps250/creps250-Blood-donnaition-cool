@@ -70,7 +70,7 @@ Le tableau de bord vise à aider les organisateurs de campagnes à prendre des d
 
 ```bash
 # Cloner le dépôt
-git clone https://github.com/votrenom/tableau-de-bord-don-de-sang.git
+git https://github.com/creps250/creps250-Blood-donnaition-cool.git
 
 # Créer un environnement virtuel
 python -m venv venv
