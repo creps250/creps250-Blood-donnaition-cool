@@ -25,7 +25,13 @@ model = genai.GenerativeModel('models/gemini-2.0-flash-thinking-exp-01-21')
 
 def safe_markdown_to_children(text):
     """
-    Convertit le markdown en un paragraphe unique Dash
+    Convertit le markdown en un paragraphe unique Dash.
+
+    Args:
+        text (str): Le texte markdown à convertir.
+
+    Returns:
+        dash.html.P: Un composant paragraphe Dash contenant le texte converti.
     """
     # Convertir le markdown en HTML
     html_text = markdown2.markdown(text, extras=['fenced-code-blocks', 'tables'])
@@ -79,13 +85,10 @@ dark_blue_theme = {
 def create_nav_buttons(current_path):
     """
     Crée les boutons de navigation avec un style dégradé et des icônes.
-    
-    Cette fonction génère des boutons de navigation pour chaque page de l'application,
-    en mettant en évidence le bouton correspondant à la page active.
-    
+
     Args:
         current_path (str): Le chemin URL actuel qui détermine quel bouton doit être mis en évidence.
-        
+
     Returns:
         list: Une liste de boutons dbc.Button stylisés pour la barre de navigation.
     """
@@ -182,57 +185,23 @@ app.layout = html.Div([
                             size="sm",
                             style={'marginLeft': '10px', 'background': 'transparent', 'color': 'white', 'border': '1px solid rgba(255,255,255,0.5)', 'borderRadius': '4px'}
                         ),
-                        
-                        # New File Upload Button
-                        dcc.Upload(
-                            id='upload-excel',
-                            children=html.Button(
-                                Icon(
-                                    icon="mdi:file-excel-outline",  # Excel file icon
-                                    width=24,
-                                    height=24,
-                                    style={
-                                        'color': 'white'
-                                    }
-                                ),
-                                style={
-                                    'position': 'fixed',
-                                    'bottom': '140px',  # Positioned above the other buttons
-                                    'right': '20px',
-                                    'zIndex': '1000',
-                                    'backgroundColor': '#217346',  # Excel green color
-                                    'borderRadius': '50%',
-                                    'width': '50px',
-                                    'height': '50px',
-                                    'display': 'flex',
-                                    'alignItems': 'center',
-                                    'justifyContent': 'center',
-                                    'border': 'none',
-                                    'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
-                                    'cursor': 'pointer'
-                                }
-                            ),
-                            multiple=False,  # Allow only single file upload
-                            accept='.xlsx, .xls, .csv'  # Limit to Excel file types
-                        ),
-                        
                         html.A(
                         html.Button(
                             Icon(
-                                icon="mdi:file-document-edit-outline",  # Icône de formulaire
+                                icon="mdi:download",  # Download icon
                                 width=24,
                                 height=24,
                                 style={
                                     'color': 'white'
                                 }
                             ),
-                            id='form-btn', 
+                            id='download-btn', 
                             style={
                                 'position': 'fixed',
-                                'bottom': '80px',  # Décalé de 60px par rapport au bouton de chatbot
+                                'bottom': '200px',  # Positioned above the Excel upload button
                                 'right': '20px',
                                 'zIndex': '1000',
-                                'backgroundColor': '#28a745',  # Vert pour différencier du bouton de chatbot
+                                'backgroundColor': '#6c757d',  # Neutral gray color
                                 'borderRadius': '50%',
                                 'width': '50px',
                                 'height': '50px',
@@ -244,27 +213,61 @@ app.layout = html.Div([
                                 'cursor': 'pointer'
                             }
                         ),
-                        href='https://ee.kobotoolbox.org/x/V0ByU4TJ',
-                        target='_blank'  # Ouvre dans un nouvel onglet
+                        target='_self',  # Can be changed to '_blank' if needed
+                        href='/assets/rapport.pdf',  # Chemin vers votre fichier PDF
+                        download='rapport.pdf',
+                    ),
+                        
+                        # New File Upload Button
+                    dcc.Upload(
+                        id='upload-excel',
+                        children=html.Button(
+                            Icon(
+                                icon="mdi:file-excel-outline",  # Excel file icon
+                                width=24,
+                                height=24,
+                                style={
+                                    'color': 'white'
+                                }
+                            ),
+                            style={
+                                'position': 'fixed',
+                                'bottom': '140px',  # Positioned above the other buttons
+                                'right': '20px',
+                                'zIndex': '1000',
+                                'backgroundColor': '#217346',  # Excel green color
+                                'borderRadius': '50%',
+                                'width': '50px',
+                                'height': '50px',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'justifyContent': 'center',
+                                'border': 'none',
+                                'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                                'cursor': 'pointer'
+                            }
+                        ),
+                        multiple=False,  # Allow only single file upload
+                        accept='.xlsx, .xls, .csv'  # Limit to Excel file types
                     ),
                     
+                    html.A(
                     html.Button(
                         Icon(
-                            icon="mdi:robot-outline",  # Une icône de robot/IA
+                            icon="mdi:file-document-edit-outline",  # Icône de formulaire
                             width=24,
                             height=24,
                             style={
                                 'color': 'white'
                             }
                         ),
-                        id='open-ai-frame-btn', 
-                        n_clicks=0,
+                        id='form-btn', 
                         style={
                             'position': 'fixed',
-                            'bottom': '20px', 
+                            'bottom': '80px',  # Décalé de 60px par rapport au bouton de chatbot
                             'right': '20px',
                             'zIndex': '1000',
-                            'backgroundColor': '#007bff',
+                            'backgroundColor': '#28a745',  # Vert pour différencier du bouton de chatbot
                             'borderRadius': '50%',
                             'width': '50px',
                             'height': '50px',
@@ -276,44 +279,76 @@ app.layout = html.Div([
                             'cursor': 'pointer'
                         }
                     ),
-                        
-                    ], className="d-flex align-items-center ml-3")
-                ], className="d-flex justify-content-end align-items-center h-100")
-            ], className="col-md-6"),
-            html.Div(
-                id='custom-modal',
-                style={
-                    'position': 'fixed',
-                    'top': '50%',
-                    'left': '50%',
-                    'transform': 'translate(-50%, -50%)',
-                    'backgroundColor': 'white',
-                    'padding': '20px',
-                    'borderRadius': '10px',
-                    'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
-                    'zIndex': '1100',
-                    'display': 'none',
-                    'textAlign': 'center',
-                    'width': '300px'
-                },
-                children=[
-                    html.Div(id='modal-content', style={'marginBottom': '15px'}),
-                    html.Button(
-                        'OK', 
-                        id='modal-close-btn', 
+                    href='https://ee.kobotoolbox.org/x/V0ByU4TJ',
+                    target='_blank'  # Ouvre dans un nouvel onglet
+                ),
+                    
+                html.Button(
+                    Icon(
+                        icon="mdi:robot-outline",  # Une icône de robot/IA
+                        width=24,
+                        height=24,
                         style={
-                            'backgroundColor': '#28a745',
-                            'color': 'white',
-                            'border': 'none',
-                            'padding': '10px 20px',
-                            'borderRadius': '5px',
-                            'cursor': 'pointer'
+                            'color': 'white'
                         }
-                    )
-                ]
-            )
-            
-        ], className="row align-items-center")
+                    ),
+                    id='open-ai-frame-btn', 
+                    n_clicks=0,
+                    style={
+                        'position': 'fixed',
+                        'bottom': '20px', 
+                        'right': '20px',
+                        'zIndex': '1000',
+                        'backgroundColor': '#007bff',
+                        'borderRadius': '50%',
+                        'width': '50px',
+                        'height': '50px',
+                        'display': 'flex',
+                        'alignItems': 'center',
+                        'justifyContent': 'center',
+                        'border': 'none',
+                        'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                        'cursor': 'pointer'
+                    }
+                ),
+                    
+                ], className="d-flex align-items-center ml-3")
+            ], className="d-flex justify-content-end align-items-center h-100")
+        ], className="col-md-6"),
+        html.Div(
+            id='custom-modal',
+            style={
+                'position': 'fixed',
+                'top': '50%',
+                'left': '50%',
+                'transform': 'translate(-50%, -50%)',
+                'backgroundColor': 'white',
+                'padding': '20px',
+                'borderRadius': '10px',
+                'boxShadow': '0 4px 6px rgba(0,0,0,0.1)',
+                'zIndex': '1100',
+                'display': 'none',
+                'textAlign': 'center',
+                'width': '300px'
+            },
+            children=[
+                html.Div(id='modal-content', style={'marginBottom': '15px'}),
+                html.Button(
+                    'OK', 
+                    id='modal-close-btn', 
+                    style={
+                        'backgroundColor': '#28a745',
+                        'color': 'white',
+                        'border': 'none',
+                        'padding': '10px 20px',
+                        'borderRadius': '5px',
+                        'cursor': 'pointer'
+                    }
+                )
+            ]
+        )
+        
+    ], className="row align-items-center")
     ], id='header', style={'padding': '15px', 'position': 'fixed', 'top': '0', 'width': '100%', 'zIndex': '1000'}),
     
     
@@ -333,7 +368,7 @@ app.layout = html.Div([
     # Cadre IA
     html.Div([
         html.Div([
-            html.H2('Assistant IA ', style={'color': '#333', 'borderBottom': '2px solid #007bff', 'paddingBottom': '10px'}),
+            html.H2('NK-STAT Assistant IA ', style={'color': '#333', 'borderBottom': '2px solid #007bff', 'paddingBottom': '10px'}),
             
             html.Div(
                 id='conversation-container', 
@@ -398,14 +433,11 @@ app.layout = html.Div([
 def update_navigation(pathname, current_title):
     """
     Met à jour le titre de la page et les boutons de navigation en fonction de l'URL.
-    
-    Cette fonction callback est déclenchée lorsque l'URL change ou que le titre de la page est modifié.
-    Elle met à jour le titre affiché et génère les boutons de navigation appropriés.
-    
+
     Args:
         pathname (str): Le chemin URL actuel.
         current_title (str): Le titre actuel de la page.
-        
+
     Returns:
         tuple: Un tuple contenant:
             - Le titre de la page (str)
@@ -439,13 +471,10 @@ def update_navigation(pathname, current_title):
 def update_theme_button(theme):
     """
     Met à jour l'apparence du bouton de thème en fonction du thème actuel.
-    
-    Cette fonction callback change le texte et l'icône du bouton de basculement de thème
-    selon que le thème actuel est clair ou sombre.
-    
+
     Args:
         theme (str): Le thème actuel ('light' ou 'dark').
-        
+
     Returns:
         tuple: Un tuple contenant:
             - Le texte à afficher sur le bouton (str)
@@ -469,14 +498,11 @@ def update_theme_button(theme):
 def toggle_theme(n_clicks, current_theme):
     """
     Bascule entre les thèmes clair et sombre de l'application.
-    
-    Cette fonction callback est déclenchée lorsque l'utilisateur clique sur le bouton de basculement de thème.
-    Elle met à jour les styles de tous les éléments principaux de l'interface utilisateur.
-    
+
     Args:
         n_clicks (int): Le nombre de clics sur le bouton de basculement de thème.
         current_theme (str): Le thème actuel ('light' ou 'dark').
-        
+
     Returns:
         tuple: Un tuple contenant:
             - Le nouveau thème (str)
@@ -552,14 +578,11 @@ def toggle_theme(n_clicks, current_theme):
 def display_page(pathname, theme):
     """
     Affiche le contenu de la page en fonction de l'URL et du thème.
-    
-    Cette fonction callback est déclenchée lorsque l'URL change ou que le thème est modifié.
-    Elle détermine quelle page afficher et configure les couleurs des graphiques en fonction du thème.
-    
+
     Args:
         pathname (str): Le chemin URL actuel qui détermine quelle page afficher.
         theme (str): Le thème actuel ('light' ou 'dark') qui détermine les couleurs à utiliser.
-        
+
     Returns:
         tuple: Un tuple contenant:
             - Le contenu de la page (dash component)
@@ -655,6 +678,17 @@ def create_card_style(theme):
     [Input('open-ai-frame-btn', 'n_clicks')]
 )
 def toggle_ai_frame(n_clicks):
+    """
+    Toggle the visibility of the AI frame based on the number of button clicks.
+
+    Args:
+        n_clicks (int): The number of times the button to open the AI frame has been clicked.
+
+    Returns:
+        dict: A dictionary containing the CSS style properties to either display or hide the AI frame.
+              If the number of clicks is odd, the AI frame is displayed, otherwise, it is hidden.
+    """
+
     if n_clicks % 2 == 1:
         return {
             'display': 'block', 
@@ -685,6 +719,20 @@ Tu peux aider à comprendre :
      State('conversation-container', 'children')]
 )
 def generate_ai_response(n_clicks, user_input, current_conversation):
+    """
+    Génère une réponse de l'IA en fonction de l'input de l'utilisateur.
+
+    Cette fonction est un callback Dash qui prend en entrée le nombre de clics sur le bouton
+    d'envoi de message, l'input de l'utilisateur et l'historique de conversation actuel.
+    Elle renvoie la nouvelle conversation mise à jour et un champ d'input vide.
+    
+    Si l'utilisateur n'a pas envoyé de message ou si l'IA n'a pas pu générer de réponse,
+    la fonction renvoie l'historique de conversation actuel et un champ d'input vide.
+    
+    Si l'IA a pu générer une réponse, la fonction ajoute le message de l'utilisateur et
+    la réponse de l'IA à l'historique de conversation et renvoie la nouvelle conversation.
+    """
+    
     if not n_clicks or not user_input:
         return current_conversation or [], ''
     
@@ -756,6 +804,17 @@ if not os.path.exists(UPLOAD_DIRECTORY):
     prevent_initial_call=True
 )
 def handle_file_upload(contents, close_clicks, filename):
+    """
+    Gère l'upload de fichier Excel et affiche un modal de confirmation ou d'erreur.
+    
+    Args:
+        contents (str): Le contenu du fichier uploadé.
+        close_clicks (int): Le nombre de clics sur le bouton de fermeture du modal.
+        filename (str): Le nom du fichier uploadé.
+    
+    Returns:
+        tuple: Un tuple contenant le style CSS du modal et son contenu.
+    """
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
     

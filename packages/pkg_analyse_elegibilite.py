@@ -6,7 +6,15 @@ from scipy import stats
 from plotly.subplots import make_subplots
 from wordcloud import WordCloud 
 from prossess_data.process_analyse_elegibilite import *
+from nltk.corpus import stopwords
+import nltk
 
+
+### pour gerer le telechargement des stopword
+try:
+    a = set(stopwords.words('french'))
+except:
+    nltk.download('stopwords')    
 
 
 
@@ -25,6 +33,26 @@ def create_circular_mask(size):
     mask = 255 * mask.astype(int)  # 0 pour le cercle, 255 pour le reste
     return mask
 
+def remove_stop_words(text):
+    """
+    Supprime les mots vides (stop words) français du texte.
+    Paramètres:
+    text (str): Le texte à nettoyer.
+    Retourne:
+    str: Le texte sans les mots vides.
+    """
+    # Télécharger les stop words français si nécessaire
+    # nltk.download('stopwords')
+    
+    # Récupérer les stop words français
+    stop_words = set(stopwords.words('french'))
+    
+    # Séparer les mots et filtrer les stop words
+    words = text.split()
+    filtered_words = [word for word in words if word.lower() not in stop_words]
+    
+    return ' '.join(filtered_words)
+
 
 def return_wordmap(data = data_final):
     """
@@ -32,7 +60,7 @@ def return_wordmap(data = data_final):
     Paramètres:
     -----------
     data : DataFrame, optionnel
-        Le DataFrame contenant les données à analyser. Par défaut, utilise `data_final`.
+        Le DataFrame contenant les données à analyser. Par défaut, utilise data_final.
     Retourne:
     ---------
     fig : plotly.graph_objs._figure.Figure
@@ -46,6 +74,7 @@ def return_wordmap(data = data_final):
         str.replace('la','').str.replace('de ','').\
         str.replace('sur ','').str.replace('par','').tolist()
     text = ' '.join(words_list)
+    text = remove_stop_words(text)
 
     # Créer un masque circulaire
     mask = create_circular_mask(800)  # Ajustez la taille selon vos besoins
@@ -57,7 +86,7 @@ def return_wordmap(data = data_final):
     wordcloud_image = wordcloud.to_image()
 
     # Afficher le word cloud avec Plotly
-    fig = px.imshow(wordcloud_image, title='Word Cloud des raisons de non eligibilite', aspect='equal')
+    fig = px.imshow(wordcloud_image, title='Nuage de mots des raisons de non eligibilite', aspect='equal')
     fig.update_layout(
         xaxis=dict(showticklabels=False),
         yaxis=dict(showticklabels=False),
@@ -100,7 +129,7 @@ def return_wordmap_indispo(data =data_final):
     wordcloud_image = wordcloud.to_image()
 
     # Afficher le word cloud avec Plotly
-    fig = px.imshow(wordcloud_image, title='Word Cloud des raisons d\'indisponibilité', aspect='equal')
+    fig = px.imshow(wordcloud_image, title='Nuage de mots des raisons d\'indisponibilité', aspect='equal')
     fig.update_layout(
         xaxis=dict(showticklabels=False),
         yaxis=dict(showticklabels=False),
@@ -202,6 +231,20 @@ def plot_status_principal_raison(data= data_final):
 
 def plot_elegibi_raison_elegibi(data=data_final):
     # Créer une figure avec deux sous-parcelles
+    """
+    Creates a figure with two subplots to visualize the distribution of eligibility status and reasons for ineligibility.
+
+    Parameters:
+    -----------
+    data : DataFrame, optional
+        The data to use for generating the plots. Defaults to `data_final`.
+
+    Returns:
+    --------
+    fig : plotly.graph_objs._figure.Figure
+        The figure containing two subplots: a pie chart for eligibility status distribution and a bar chart for reasons of ineligibility.
+    """
+
     fig = make_subplots(rows=1, cols=2, subplot_titles=("Répartition du statut d'éligibilité", "Raisons de non éligibilité"),
                         specs=[[{'type': 'pie'}, {'type': 'bar'}]])
 
@@ -677,3 +720,159 @@ def plot_cluster_distribution(df):
     )
     fig0.update_traces(marker_line_color='black', opacity=1, marker_line_width=1)
     return fig0
+
+
+def create_treemap(df=data_final):
+    # Créer un treemap hiérarchique personnalisé pour les dons de sang
+    """
+    Crée un treemap hiérarchique personnalisé pour les dons de sang.
+
+    Ce treemap montre la hiérarchie et la composition des donneurs de sang par sexe, type de donation et groupe sanguin.
+    Les couleurs sont choisies pour rappeler le sang et sont liées à l'âge moyen des donneurs.
+
+    Parameters:
+        df (pandas.DataFrame): Le DataFrame contenant les données des donneurs de sang. Par défaut, il utilise `data_final`.
+
+    Returns:
+        plotly.graph_objects._figure.Figure: Le treemap personnalisé.
+    """
+    fig_treemap = px.treemap(df,
+                              path=['Sexe', 'Type de donation', 'Groupe Sanguin ABO / Rhesus'],
+                              values='Age',
+                              color='Age',
+                              color_continuous_scale='YlGnBu',  # Échelle de couleurs rappelant le sang
+                              title='Hiérarchie et Composition des Donneurs de Sang',
+                              hover_data={
+                                  'Sexe': True,
+                                  'Type de donation': True,
+                                  'Groupe Sanguin ABO / Rhesus': True,
+                                  'Age': ':.0f'  # Afficher l'âge sans décimales
+                              })
+    
+    # Personnalisation du layout pour un thème plus médical/don du sang
+    fig_treemap.update_layout(
+        title={
+            'text': 'Hiérarchie et Composition des Donneurs de Sang',
+            'font': {'size': 12, 'color': 'darkred'},
+            'x': 0.5,  # Centrer le titre
+            'xanchor': 'center'
+        },
+        font=dict(
+            family="Arial, sans-serif",
+            size=12,
+            color="darkred"
+        ),
+        paper_bgcolor='rgba(255,240,240,0.8)',  # Fond légèrement rosé
+        plot_bgcolor='rgba(255,240,240,0.8)',
+        margin=dict(
+        l=0,   
+        r=0,   
+        t=40,   
+        b=0 )
+    )
+    
+    # Personnalisation des hover labels
+    fig_treemap.update_traces(
+        hovertemplate='<b>%{label}</b><br>' +
+                      'Sexe: %{customdata[0]}<br>' +
+                      'Type de Donation: %{customdata[1]}<br>' +
+                      'Groupe Sanguin: %{customdata[2]}<br>' +
+                      'Âge Moyen: %{customdata[3]:.0f} ans<extra></extra>'
+    )
+    
+    return fig_treemap
+
+
+def create_age_distribution(df=data_final):
+    """
+    Crée un graphique en violon pour montrer la distribution de l'âge des donneurs de sang par sexe.
+
+    Ce graphique montre la distribution de l'âge des donneurs de sang par sexe en utilisant des violons.
+    Les couleurs sont choisies pour rappeler le sang et sont liées à l'âge moyen des donneurs.
+    Les annotations statistiques sont également ajoutées pour montrer les moyennes, les médianes, les minima et les maxima.
+
+    Parameters:
+        df (pandas.DataFrame): Le DataFrame contenant les données des donneurs de sang. Par défaut, il utilise `data_final`.
+
+    Returns:
+        plotly.graph_objects._figure.Figure: Le graphique en violon.
+    """
+    
+    fig_age = go.Figure()
+    
+    # Palette de couleurs médicales
+    color_map = {
+        'M': '#8B0000',  # Dark Red for Males
+        'F': '#B22222'   # Firebrick for Females
+    }
+    
+    # Distribution par sexe
+    for sexe in df['Sexe'].unique():
+        subset = df[df['Sexe'] == sexe]
+        
+        fig_age.add_trace(go.Violin(
+            x=subset['Sexe'],
+            y=subset['Age'],
+            name=sexe,
+            line_color=color_map[sexe],
+            fillcolor=color_map[sexe],
+            opacity=0.6,
+            box_visible=True,
+            meanline_visible=True,
+            points='all',  # Show all points
+            pointpos=0,  # Position of points
+            jitter=0.05  # Add some jitter to points
+        ))
+    
+    # Mise à jour du layout
+    fig_age.update_layout(
+        title={
+            'text': 'Distribution de l\'Âge des Donneurs par Sexe',
+            'font': {
+                'size': 12, 
+                'color': '#4A0E0E',  # Very dark red
+                'family': 'Arial Black'
+            },
+            'x': 0.5,
+            'xanchor': 'center'
+        },
+        yaxis_title='Âge',
+        xaxis_title='',
+        violinmode='overlay',
+        plot_bgcolor='rgba(255,245,245,0.9)',  # Light pink background
+        paper_bgcolor='rgba(255,245,245,0.9)',
+        font=dict(
+            family="Arial, sans-serif",
+            size=12,
+            color="#4A0E0E"
+        ),margin=dict(
+        l=0,   
+        r=0,   
+        t=40,   
+        b=0   
+    )
+    )
+    
+    # Ajouter des annotations statistiques
+    stats_by_sex = df.groupby('Sexe')['Age'].agg(['mean', 'median', 'min', 'max'])
+    
+    # Annotations de statistiques
+    annotations = [
+        dict(
+            xref='paper', yref='paper',
+            x=0.5, y=-0.15,
+            text=(
+                f"Statistiques | Homme: Moy={stats_by_sex.loc['M', 'mean']:.1f}, "
+                f"Méd={stats_by_sex.loc['M', 'median']:.1f} | "
+                f"Femme: Moy={stats_by_sex.loc['F', 'mean']:.1f}, "
+                f"Méd={stats_by_sex.loc['F', 'median']:.1f}"
+            ),
+            showarrow=False,
+            font=dict(size=10, color='gray')
+        )
+    ]
+    
+    fig_age.update_layout(annotations=annotations)
+    
+    return fig_age
+

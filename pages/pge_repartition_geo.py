@@ -58,7 +58,7 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                 figure=Etude_repartition_var_dem(
                     data=data_final,
                     var_='Religion',
-                    title='Repartition des Religions des enquetes'
+                    title='Repartition des Religions des candidats aux don'
                 ),
                 responsive=True,
                 style={'height': '370px'}
@@ -326,14 +326,14 @@ def update_caractdemo(selected_val,selected_arr):
         a = Etude_repartition_var_dem(
             data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)],
             var_='Religion',
-            title='Repartition des Religions des enquetes'
+            title='Repartition des Religions des candidats aux don'
         )
         b=total_enquetes(data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])
     elif selected_val == 'Situation Matrimoniale (SM)':
         a = Etude_repartition_var_dem(
             data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)],
             var_='Situation Matrimoniale (SM)',
-            title='Repartition de la situation matrimonial des enquetes'
+            title='Repartition de la situation matrimonial des candidats aux dons'
         )
         b=total_enquetes(data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])
     elif selected_val == 'Age':
@@ -379,13 +379,13 @@ def reset_arrondissement_dropdown(n_clicks,selected_arr,select_caract):
             a = Etude_repartition_var_dem(
                 data=data_final,
                 var_='Religion',
-                title='Repartition des Religions des enquetes'
+                title='Repartition des Religions des candidats aux don'
             )
         elif select_caract == 'Situation Matrimoniale (SM)':
             a = Etude_repartition_var_dem(
                 data=data_final,
                 var_='Situation Matrimoniale (SM)',
-                title='Repartition de la situation matrimonial des enquetes'
+                title='Repartition de la situation matrimonial des candidats aux dons'
             )
         elif select_caract == 'Age':
             a = classe_age_plot(data=data_final)
@@ -398,13 +398,13 @@ def reset_arrondissement_dropdown(n_clicks,selected_arr,select_caract):
             a = Etude_repartition_var_dem(
                 data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)],
                 var_='Religion',
-                title='Repartition des Religions des enquetes'
+                title='Repartition des Religions des candidats aux don'
             )
         elif select_caract == 'Situation Matrimoniale (SM)':
             a = Etude_repartition_var_dem(
                 data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)],
                 var_='Situation Matrimoniale (SM)',
-                title='Repartition de la situation matrimonial des enquetes'
+                title='Repartition de la situation matrimonial des candidats aux dons'
             )
         elif select_caract == 'Age':
             a = classe_age_plot(data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])

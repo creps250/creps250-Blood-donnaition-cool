@@ -16,6 +16,61 @@ from sklearn.decomposition import PCA
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy import stats
+
+# Nettoyage et prétraitement des données
+def nettoyer_donnees(df):
+    # Renommer les colonnes pour faciliter leur manipulation
+    """
+    Nettoie et prétraite les données d'un DataFrame.
+
+    Cette fonction effectue plusieurs opérations de nettoyage sur un DataFrame :
+    - Renomme les colonnes en supprimant les espaces en début et fin de nom.
+    - Supprime les lignes contenant des valeurs aberrantes dans la colonne 'Age'.
+    - Convertit les valeurs de la colonne 'Age' en numériques, supprimant celles qui ne peuvent pas être converties.
+    - Filtre les âges pour qu'ils soient dans une plage réaliste (entre 18 et 80 ans).
+    - Gère les valeurs manquantes dans les colonnes catégorielles spécifiées en les remplissant avec la valeur la plus fréquente.
+
+    Paramètres:
+    -----------
+    df : pandas.DataFrame
+        Le DataFrame contenant les données à nettoyer.
+
+    Retourne:
+    --------
+    pandas.DataFrame
+        Le DataFrame nettoyé.
+    """
+
+    df.columns = [col.strip() for col in df.columns]
+    
+    # Supprimer les lignes avec des valeurs aberrantes dans 'Age'
+    valeurs_aberrantes = [
+        '25673051888', '00', '2O', '0', '4&', '00'
+    ]
+    
+    # Supprimer les lignes contenant ces valeurs aberrantes
+    df = df[~df['Age'].isin(valeurs_aberrantes)]
+    # Convertir 'Age' en numérique, en gérant les erreurs
+    df['Age'] = pd.to_numeric(df['Age'], errors='coerce')
+    # Supprimer les lignes où 'Age' ne peut pas être converti en nombre
+    df = df.dropna(subset=['Age'])
+    
+     # Filtrer les âges dans une plage réaliste (par exemple, entre 18 et 80 ans)
+    df = df[(df['Age'] >= 18) & (df['Age'] <= 80)]
+    print("Nombre de lignes après nettoyage des âges :", len(df))
+    
+    # Gestion des autres valeurs manquantes
+    colonnes_categorielles = ['Sexe', 'Type de donation', 'Groupe Sanguin ABO / Rhesus', 'Phenotype']
+    for col in colonnes_categorielles:
+        df[col] = df[col].fillna(df[col].mode()[0])
+    
+    return df
+
 
 
 
@@ -194,10 +249,13 @@ correspondance = {
 
 try:
     data =pd.read_excel('dataset/Challenge dataset.xlsx')
+    df_volontaire = pd.read_excel('dataset/Challenge dataset.xlsx',sheet_name="2020")
 except:
-    data =pd.read_excel('dataset/Challenge dataset - Copie.xlsx')   
+    data =pd.read_excel('dataset/Challenge dataset - Copie.xlsx')
+    df_volontaire = pd.read_excel('dataset/Challenge dataset - Copie.xlsx',sheet_name="2020")   
 
 
+df_volontaire = nettoyer_donnees(df_volontaire)
 ###################prosess data
 ## Detecter les date de controle incoherentes
 invalid_day_control = data.loc[pd.to_datetime(data.iloc[:, 0],errors='coerce').isna()].iloc[:, 0].values

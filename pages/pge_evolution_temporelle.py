@@ -10,6 +10,33 @@ from packages.pkg_kpi import *
 
 def page_trois(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_theme):
     
+    """
+    Page 3 de l'application qui affiche les KPIs sur la page d'accueil, 
+    ainsi que des graphiques sur l'évolution temporelle des dons et des caracteristiques 
+    demographiques des donneurs.
+
+    Parameters
+    ----------
+    theme : str
+        Le thème actuel ('light' ou 'dark') qui détermine les couleurs à utiliser.
+    plot_font_color : str
+        La couleur du texte des graphiques.
+    plot_bg : str
+        La couleur de fond des graphiques.
+    plot_paper_bg : str
+        La couleur de fond des graphiques.
+    plot_grid_color : str
+        La couleur de la grille des graphiques.
+    light_theme : dict
+        Le dictionnaire contenant les couleurs du thème clair.
+    dark_theme : dict
+        Le dictionnaire contenant les couleurs du thème sombre.
+
+    Returns
+    -------
+    html.Div
+        Le contenu HTML de la page 3 de l'application.
+    """
     if theme == 'light':
         card_style = {'backgroundColor': light_theme['cardBg']}
         style_dropdow = {'width': '150px', 'backgroundColor': '#D9DADC', 'border': 'none', 'fontSize': '12px'}
@@ -184,11 +211,23 @@ def page_trois(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, 
 )
 def update_graph(selected_value):
     # Mise à jour du graphique en fonction de la sélection
+    """
+    Updates the 'caract-demo' graph based on the selected value from the dropdown menu.
+
+    Parameters:
+    -----------
+    selected_value : str
+        The value selected from the 'caract-menu' dropdown, which determines the 
+        category to visualize in the graph.
+
+    Returns:
+    --------
+    plotly.graph_objs.Figure
+        A plotly figure object representing the distribution of the selected 
+        category among blood donors.
+    """
+
     return Plot_genre(data_don, selected_value, f'Repartition du {selected_value} des donneurs de sang')
-
-
-
-
 
 
 @app.callback(
@@ -199,6 +238,22 @@ def update_graph(selected_value):
 )
 def update_output(calendar_clicks, modele_clicks):
     # Récupérer le bouton qui a été cliqué
+    """
+    Updates the 'acm-eligibility' graph based on the button clicks from the navbar.
+
+    Parameters:
+    -----------
+    calendar_clicks : int
+        The number of clicks on the "Calendrier" button.
+    modele_clicks : int
+        The number of clicks on the "Modèles de comportement" button.
+
+    Returns:
+    --------
+    plotly.graph_objs.Figure
+        A plotly figure object representing either a heatmap of the calendar or a dashboard of eligibility.
+    """
+
     ctx = dash.callback_context
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
@@ -220,7 +275,25 @@ def update_output(calendar_clicks, modele_clicks):
     suppress_callback_exceptions=True
 )
 def update_graph(selected_value, n_clicks):
-    # Get the context that triggered the callback
+    # Mise à jour du graphique en fonction de la sélection
+    """
+    Updates the 'evol-annee' graph based on the selected value from the dropdown menu
+    and the filter button.
+
+    Parameters:
+    -----------
+    selected_value : str
+        The value selected from the 'caract-menu' dropdown, which determines the
+        category to visualize in the graph.
+    n_clicks : int
+        The number of clicks on the "Filtre" button.
+
+    Returns:
+    --------
+    plotly.graph_objs.Figure
+        A plotly figure object representing the distribution of the selected
+        category among blood donors over time.
+    """
     ctx = dash.callback_context
     
     # Identify which input triggered the callback

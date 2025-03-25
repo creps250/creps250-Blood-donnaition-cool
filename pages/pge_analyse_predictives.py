@@ -5,12 +5,39 @@ from datetime import datetime
 import plotly.graph_objects as go
 from dash import Dash, html, dcc, callback, Input, Output, State
 import requests
+import time
 
 
 
 
 def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_theme):
     # Styles basés sur le thème
+    
+    """Retourne la page de prédiction d'éligibilité au don de sang.
+
+    Parameters
+    ----------
+    theme : str
+        Le thème de la page (light ou dark)
+    plot_font_color : str
+        La couleur du texte des graphiques
+    plot_bg : str
+        La couleur d'arrière-plan des graphiques
+    plot_paper_bg : str
+        La couleur de papier des graphiques
+    plot_grid_color : str
+        La couleur du quadrillage des graphiques
+    light_theme : dict
+        Les paramètres du thème clair
+    dark_theme : dict
+        Les paramètres du thème sombre
+
+    Returns
+    -------
+    html.Div
+        La page de prédiction d'éligibilité au don de sang
+    """
+    
     card_style = {
     'backgroundColor': light_theme['cardBg'] if theme == 'light' else dark_theme['cardBg'],
     'borderRadius': '15px',
@@ -137,7 +164,8 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                                         {"label": "Femme", "value": "Femme"}
                                     ],
                                     value="Homme",
-                                    style={'borderRadius': '5px'},
+                                    style={'borderRadius': '5px',
+                                           'color': light_theme['textColor'] if theme == 'light' else "black"},
                                     className="mb-3"
                                 )
                             ], width=6),
@@ -170,7 +198,8 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                                         {"label": "Aucun", "value": "Aucun"}
                                     ],
                                     value="Secondaire",
-                                    style={'borderRadius': '5px'},
+                                    style={'borderRadius': '5px',
+                                           'color': light_theme['textColor'] if theme == 'light' else "black"},
                                     className="mb-3"
                                 )
                             ], width=6),
@@ -187,7 +216,9 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                                          {"label": "veuf (veuve)", "value": "veuf (veuve)"},
                                     ],
                                     value="Célibataire",
-                                    style={'borderRadius': '5px'},
+                                    style={'borderRadius': '5px',
+                                           'color': light_theme['textColor'] if theme == 'light' else "black"},
+                                    
                                     className="mb-3"
                                 )
                             ], width=6)
@@ -205,7 +236,8 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                                         {"label": "Pas Précisé", "value": "Pas Précisé"}
                                     ],
                                     value="Chrétien (Catholique)",
-                                    style={'borderRadius': '5px'},
+                                    style={'borderRadius': '5px',
+                                           'color': light_theme['textColor'] if theme == 'light' else "black"},
                                     className="mb-3"
                                 )
                             ], width=12)
@@ -236,19 +268,23 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                                         
                                         ],
                                         placeholder="Profession",
-                                        style={'width': '100%', 'padding': '8px', 'borderRadius': '5px', 'border': '1px solid #ccc'},
+                                        style={'width': '100%', 'padding': '8px', 'borderRadius': '5px', 'border': '1px solid #ccc',
+                                               'color': light_theme['textColor'] if theme == 'light' else "black"},
                                         className="mb-3"
                                 )
                             ], width=6),
                             
                             dbc.Col([
                                 html.Label("Nationalité", style={'fontWeight': 'bold', 'marginBottom': '5px'}),
-                                dcc.Input(
+                                dcc.Dropdown(
                                     id="nationalite",
-                                    type="text",
+                                    options = [
+                                        {"label": "Camerounaise", "value": "Camerounaise"},
+                                        {"label": "Etranger", "value": "Etranger"}],
                                     placeholder="Nationalité",
                                     value="",
-                                    style={'width': '100%', 'padding': '8px', 'borderRadius': '5px', 'border': '1px solid #ccc'},
+                                    style={'width': '100%', 'padding': '8px', 'borderRadius': '5px', 'border': '1px solid #ccc',
+                                           'color': light_theme['textColor'] if theme == 'light' else "black"},
                                     className="mb-3"
                                 )
                             ], width=6)
@@ -287,11 +323,19 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                         dbc.Row([
                             dbc.Col([
                                 html.Label("Arrondissement de résidence", style={'fontWeight': 'bold', 'marginBottom': '5px'}),
-                                dcc.Input(
+                                dcc.Dropdown(
                                     id="arrondissement_de_residence",
-                                    type="text",
+                                    options = [
+                                        {"label": "Douala 1", "value": "Douala 1"},
+                                        {"label": "Douala 2", "value": "Douala 2"},
+                                        {"label": "Douala 3", "value": "Douala 3"},
+                                        {"label": "Douala 4", "value": "Douala 4"},
+                                        {"label": "Douala 5", "value": "Douala 5"},
+                                        {"label": "Yaoundé", "value": "Yaoundé"},
+                                        {"label": "Autres", "value": "Autres"}],
                                     placeholder="Arrondissement",
-                                    style={'width': '100%', 'padding': '8px', 'borderRadius': '5px', 'border': '1px solid #ccc'},
+                                    style={'width': '100%', 'padding': '8px', 'borderRadius': '5px', 'border': '1px solid #ccc',
+                                           'color': light_theme['textColor'] if theme == 'light' else "black"},
                                     className="mb-3"
                                 )
                             ], width=6),
@@ -360,7 +404,8 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                                                     "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
                                                 ])],
                                                 value=1,
-                                                style={'borderRadius': '5px'},
+                                                style={'borderRadius': '5px',
+                                                       'color': light_theme['textColor'] if theme == 'light' else "black"},
                                             )
                                         ], width=6),
                                         dbc.Col([
@@ -369,7 +414,8 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                                                 id="annee_dernier_don",
                                                 options=[{"label": str(year), "value": year} for year in range(2020, 2026)],
                                                 value=2024,
-                                                style={'borderRadius': '5px'},
+                                                style={'borderRadius': '5px',
+                                                       'color': light_theme['textColor'] if theme == 'light' else "black"},
                                             )
                                         ], width=6)
                                     ])
@@ -409,18 +455,30 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
         ]),
         
         # Bouton de prédiction
-        dbc.Row([
-            dbc.Col([
-                dbc.Button(
-                    "Prédire l'éligibilité",
-                    id="predict-button",
-                    color="danger",
-                    className="mt-3 mb-4",
-                    style={'fontWeight': 'bold', 'padding': '12px', 'width': '100%'},
-                    n_clicks=0  # Initialisation explicite à 0
-                )
-            ], width={"size": 6, "offset": 3})
-        ]),
+        dcc.Loading(
+            id="loading-prediction",
+            type="circle",  # You can change the type to "default", "circle", "dot", or "cube"
+            children=[
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Button(
+                            "Prédire l'éligibilité",
+                            id="predict-button",
+                            color="danger",
+                            className="mt-3 mb-4",
+                            style={'fontWeight': 'bold', 'padding': '12px', 'width': '100%'},
+                            n_clicks=0  # Initialisation explicite à 0
+                        )
+                    ], width={"size": 6, "offset": 3})
+                ])
+            ],
+            style={
+                "position": "relative",  # Ensures loading spinner is centered
+                "width": "100%",
+                "display": "flex",
+                "justifyContent": "center"
+            }
+        ),
         html.A("Visiter la documentation de l API", href="https://api-blood-donnation.onrender.com/docs#/", target="_blank")
     ], style={'padding': '20px'})
 
@@ -430,6 +488,16 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
     Input("a_deja_donne", "value")
 )
 def toggle_date_dernier_don(a_deja_donne):
+    """
+    Toggle the visibility of the date_dernier_don_container based on the value of the a_deja_donne input.
+
+    Args:
+        a_deja_donne (str): The value of the a_deja_donne input.
+
+    Returns:
+        dict: A dictionary with the style for the date_dernier_don_container element.
+    """
+    
     if a_deja_donne == "Oui":
         return {"display": "block", "marginBottom": "20px"}
     return {"display": "none"}
@@ -442,7 +510,8 @@ def toggle_date_dernier_don(a_deja_donne):
         Output("eligibility-gauge", "figure"),
         Output("recommendation-section", "style"),
         Output("recommendation-content", "children"),
-        Output("prediction-image", "style")
+        Output("prediction-image", "style"),
+        Output("loading-prediction", "children") 
     ],
     Input("predict-button", "n_clicks"),
     State("genre", "value"),
@@ -461,11 +530,17 @@ def toggle_date_dernier_don(a_deja_donne):
     State("quartier_residence", "value"),
     State("nationalite", "value")
 )
+
 def update_prediction(n_clicks, genre, age, niveau_etude, situation_matrimoniale, 
                       religion, taux_hemoglobine, a_deja_donne, mois_dernier_don, annee_dernier_don,
                       profession, taille, poids, arrondissement_de_residence, quartier_residence, nationalite):
     
     # Vérifier si le callback a été déclenché
+    """
+    Met à jour l'affichage de la prédiction en fonction des données entrées par l'utilisateur.
+    Fait une requête à l'API de prédiction et affiche le résultat en fonction de la réponse.
+    """
+    
     ctx = callback_context
     if not ctx.triggered:
         # Pas de déclenchement (chargement initial de la page)
@@ -477,7 +552,14 @@ def update_prediction(n_clicks, genre, age, niveau_etude, situation_matrimoniale
         ))
         default_gauge.update_layout(margin=dict(l=30, r=30, b=30, t=50), height=250)
         
-        return "", {"display": "none"}, default_gauge, {"display": "none"}, "", {'textAlign': 'center', 'marginBottom': '20px', 'display': 'block'}
+        return "", {"display": "none"}, default_gauge, {"display": "none"}, "", {'textAlign': 'center', 'marginBottom': '20px', 'display': 'block'}, dbc.Button(
+            "Prédire l'éligibilité",
+            id="predict-button",
+            color="danger",
+            className="mt-3 mb-4",
+            style={'fontWeight': 'bold', 'padding': '12px', 'width': '100%'},
+            n_clicks=0
+        )
     
     # Vérifier si le bouton a été cliqué
     if n_clicks is None or n_clicks == 0:
@@ -490,7 +572,17 @@ def update_prediction(n_clicks, genre, age, niveau_etude, situation_matrimoniale
         ))
         default_gauge.update_layout(margin=dict(l=30, r=30, b=30, t=50), height=250)
         
-        return "", {"display": "none"}, default_gauge, {"display": "none"}, "", {'textAlign': 'center', 'marginBottom': '20px', 'display': 'block'}
+        return "", {"display": "none"}, default_gauge, {"display": "none"}, "", {'textAlign': 'center', 'marginBottom': '20px', 'display': 'block'}, dbc.Button(
+            "Prédire l'éligibilité",
+            id="predict-button",
+            color="danger",
+            className="mt-3 mb-4",
+            style={'fontWeight': 'bold', 'padding': '12px', 'width': '100%'},
+            n_clicks=0
+        )
+    
+    # Ajout du délai de 1 seconde
+    #ertime.sleep(1)
     
     # Calculer la date du dernier don si applicable
     date_dernier_don = None
@@ -521,6 +613,7 @@ def update_prediction(n_clicks, genre, age, niveau_etude, situation_matrimoniale
         response = requests.post("https://api-blood-donnation.onrender.com/predict", json=data)
         result = response.json()
         
+        # [Le reste du code de traitement de la réponse reste identique]
         # Calculer la probabilité pour l'affichage
         probability = result.get("probability", 0.5) * 100 if result.get("probability") is not None else 0
         
@@ -623,10 +716,25 @@ def update_prediction(n_clicks, genre, age, niveau_etude, situation_matrimoniale
         
         recommendation_style = {'display': 'block', 'marginTop': '20px'} if recommendations else {'display': 'none'}
         
-        return prediction_output, {"display": "block"}, gauge_fig, recommendation_style, recommendations, {'display': 'none'}
+        # À la fin, retournez tous les outputs, y compris le bouton original
+        return prediction_output, {"display": "block"}, gauge_fig, recommendation_style, recommendations, {'display': 'none'}, dbc.Button(
+            "Prédire l'éligibilité",
+            id="predict-button",
+            color="danger",
+            className="mt-3 mb-4",
+            style={'fontWeight': 'bold', 'padding': '12px', 'width': '100%'},
+            n_clicks=0
+        )
     
     except Exception as e:
         return html.Div([
             html.H3("Erreur lors de la prédiction", style={"color": "red"}),
             html.P(str(e))
-        ]), {"display": "none"}, go.Figure(), {"display": "none"}, "", {'textAlign': 'center', 'marginBottom': '20px', 'display': 'block'}
+        ]), {"display": "none"}, go.Figure(), {"display": "none"}, "", {'textAlign': 'center', 'marginBottom': '20px', 'display': 'block'}, dbc.Button(
+            "Prédire l'éligibilité",
+            id="predict-button",
+            color="danger",
+            className="mt-3 mb-4",
+            style={'fontWeight': 'bold', 'padding': '12px', 'width': '100%'},
+            n_clicks=0
+        )

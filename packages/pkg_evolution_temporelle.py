@@ -15,18 +15,14 @@ import plotly_calplot
 def Plot_genre(data,var_,title=''):
     """
     Crée un graphique en camembert avec trous pour visualiser les valeurs d'éligibilité d'un DataFrame.
-    Paramètres:
-    -----------
-    data_cluster_don : pandas.DataFrame
-        Le DataFrame contenant les données à visualiser.
-    var_ : str
-        Le nom de la colonne du DataFrame à utiliser pour les valeurs d'éligibilité.
-    title : str, optionnel
-        Le titre du graphique (par défaut est une chaîne vide).
-    Retourne:
-    --------
-    plotly.graph_objs._figure.Figure
-        Un objet Figure de Plotly représentant le graphique en camembert.
+
+    Args:
+        data (pandas.DataFrame): Le DataFrame contenant les données à visualiser.
+        var_ (str): Le nom de la colonne du DataFrame à utiliser pour les valeurs d'éligibilité.
+        title (str, optionnel): Le titre du graphique (par défaut est une chaîne vide).
+
+    Returns:
+        plotly.graph_objs._figure.Figure: Un objet Figure de Plotly représentant le graphique en camembert.
     """
     
     # Créer un DataFrame pour les valeurs d'éligibilité
@@ -50,6 +46,12 @@ def visualiser_carte_chaleur_disponibilite(df):
     """
     Crée une carte de chaleur améliorée montrant la disponibilité des donneurs
     en fonction du mois et du groupe démographique.
+
+    Args:
+        df (pandas.DataFrame): DataFrame contenant les données des donneurs.
+
+    Returns:
+        plotly.graph_objects._figure.Figure: Une carte de chaleur montrant la disponibilité des donneurs.
     """
     # Préparer les données
     df_prepared = df
@@ -161,6 +163,15 @@ def visualiser_carte_chaleur_disponibilite(df):
 
 
 def retour_evolution_glob_anuel(data_don_annee=data_don_annee):
+    """
+    Crée un graphique en aires montrant l'évolution globale des dons au fil des années.
+
+    Args:
+        data_don_annee (pandas.DataFrame, optional): DataFrame contenant les données des dons par année. Defaults to data_don_annee.
+
+    Returns:
+        plotly.graph_objects._figure.Figure: Un graphique en aires montrant l'évolution des dons.
+    """
     # Créer le graphique en utilisant Plotly
     fig = px.area(data_don_annee, x='Annee', y='count',
                 title='Evolution des dons au fils des annees',
@@ -185,6 +196,19 @@ def retour_evolution_glob_anuel(data_don_annee=data_don_annee):
 
 
 def plot_evol_anne_var(data_don = data_don,var_='Genre',title='Nombre de dons par année et par genre'):
+    """
+    Crée un graphique en aires montrant l'évolution des dons par année et par variable (par exemple, genre, âge, etc.).
+    
+    Args:
+        data_don (pandas.DataFrame, optional): Le DataFrame contenant les données des dons. Defaults to data_don.
+        var_ (str, optional): Le nom de la colonne du DataFrame contenant la variable à utiliser. Defaults to 'Genre'.
+        title (str, optional): Le titre du graphique. Defaults to 'Nombre de dons par année et par genre'.
+    
+    Returns:
+        plotly.graph_objects._figure.Figure: Un graphique en aires montrant l'évolution des dons.
+    """
+
+
     fig = px.area(data_don[['Annee', var_]].value_counts().reset_index().sort_values(by='Annee'), 
                 x='Annee', 
                 y='count', 
@@ -212,6 +236,20 @@ def plot_evol_anne_var(data_don = data_don,var_='Genre',title='Nombre de dons pa
 
 
 def retourn_evolution_mois(data_don=data_don):
+    """
+    Crée un graphique à barres montrant l'évolution totale des dons au fil des mois.
+
+    Cette fonction génère un graphique à barres utilisant Plotly pour visualiser le nombre total de dons
+    par mois, en utilisant les données fournies dans le DataFrame. Les mois sont ordonnés chronologiquement.
+
+    Args:
+        data_don (pandas.DataFrame): Le DataFrame contenant les informations sur les dons de sang,
+                                     avec une colonne 'Mois' indiquant le mois de chaque don.
+
+    Returns:
+        plotly.graph_objects._figure.Figure: Un graphique à barres montrant l'évolution des dons au fil des mois.
+    """
+
     data_don_mois = data_don['Mois'].value_counts().reset_index()
     data_don_mois.columns = ['Mois', 'count']
 
@@ -238,6 +276,22 @@ def retourn_evolution_mois(data_don=data_don):
 
 def plot_mois_vars_counts(var_='Genre', title='Répartition des dons par mois et par genre'):
 
+    """
+    Crée un graphique à barres empilées montrant la répartition des dons par mois et par variable.
+
+    Cette fonction génère un graphique à barres empilées utilisant Plotly pour visualiser la répartition
+    des dons par mois et par variable (par exemple, genre, âge, etc.), en utilisant les données fournies
+    dans le DataFrame. Les mois sont ordonnés chronologiquement.
+
+    Args:
+        var_ (str, optional): Le nom de la colonne du DataFrame contenant la variable à utiliser.
+                              Defaults to 'Genre'.
+        title (str, optional): Le titre du graphique. Defaults to 'Répartition des dons par mois et par genre'.
+    
+    Returns:
+        plotly.graph_objects._figure.Figure: Un graphique à barres empilées montrant la répartition des dons par mois et par variable.
+    """
+    
     categorie = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
     # Compter les occurrences par mois et par variable
@@ -466,6 +520,23 @@ def create_acm_eligibility_dashboard(data=data_final, variables=None):
 
 def prepare_calendar_data(df):
     # Compter le nombre d'occurrences par date
+    """
+    Prépare les données pour la visualisation du calendrier
+    ------------------------------------------------------------------
+    Compte le nombre d'occurrences par date, convertit la colonne de date
+    en datetime si ce n'est pas déjà le cas, et filtre uniquement pour
+    les années 2019 et 2020.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Le dataframe contenant la colonne 'Date de remplissage de la fiche'
+
+    Returns
+    -------
+    pandas.DataFrame
+        Le dataframe contenant les dates et le nombre d'occurrences
+    """
     date_counts = df['Date de remplissage de la fiche'].value_counts().reset_index()
     date_counts.columns = ['Date', 'Nombre']
    
@@ -480,6 +551,19 @@ def prepare_calendar_data(df):
 
 def create_calendar_heatmap(df):
     # Créer un Series avec la date comme index et le nombre comme valeurs
+    """
+    Crée un calendrier en heatmap montrant les remplissages de fiches au fil du temps.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Le dataframe contenant la colonne 'Date de remplissage de la fiche'
+
+    Returns
+    -------
+    plotly.graph_objects._figure.Figure
+        Le calendrier en heatmap
+    """
     date_counts = prepare_calendar_data(df)
     data_series = date_counts.set_index('Date')['Nombre']
     

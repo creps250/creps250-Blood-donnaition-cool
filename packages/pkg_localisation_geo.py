@@ -177,6 +177,25 @@ def cartographie_quartier(var1="Temporairement Non-eligible",var2 ="Eligible" ):
 
 #####Repartition quartier
 def repartition_donneurs_sang(data=data_final,var_='A-t-il (elle) déjà donné le sang',title='Répartition des donneurs de sang'):
+    """
+    Crée un graphique en camembert avec trous pour visualiser la répartition des donneurs de sang.
+
+    Ce graphique est un camembert avec trous qui montre la répartition des donneurs de sang d'après la variable
+    `var_` dans le DataFrame `data`. La taille de chaque partie du camembert est proportionnelle au nombre de
+    personnes qui ont la valeur correspondante pour la variable `var_`. La couleur est définie en fonction de
+    la valeur de la variable.
+
+    La légende est affichée horizontalement en bas du graphique. Le graphique est centré horizontalement et
+    a une marge de 30 pixels en haut, et de 0 pixel sur les autres côtés.
+
+    Paramètres:
+    data (pandas.DataFrame): Le DataFrame contenant les données à visualiser.
+    var_ (str): Le nom de la colonne du DataFrame contenant les valeurs à visualiser.
+    title (str): Le titre du graphique.
+
+    Retourne:
+    plotly.graph_objs._figure.Figure: Un objet figure Plotly représentant le graphique en camembert.
+    """
     elegibilite_counts = data[var_].value_counts().reset_index()
     elegibilite_counts.columns = [var_, 'Total']
 
@@ -194,6 +213,23 @@ def repartition_donneurs_sang(data=data_final,var_='A-t-il (elle) déjà donné 
 
 def return_stat_enqueteur(data=data_final):
     # Create a figure with two subplots
+    """
+    Crée un graphique avec deux sous-parcelles pour visualiser la répartition des enquêtés selon la nationalité
+    et par don de sang.
+
+    Ce graphique est composé de deux camemberts avec trous qui montrent la répartition des enquêtés selon la
+    nationalité et selon s'ils ont déjà donné du sang ou non. La taille de chaque partie du camembert est
+    proportionnelle au nombre de personnes qui ont la valeur correspondante pour la variable.
+
+    La légende est affichée horizontalement en bas du graphique. Le graphique est centré horizontalement et
+    a une marge de 30 pixels en haut, et de 0 pixel sur les autres côtés.
+
+    Paramètres:
+    data (pandas.DataFrame): Le DataFrame contenant les données à visualiser.
+
+    Retourne:
+    plotly.graph_objs._figure.Figure: Un objet figure Plotly représentant le graphique avec deux sous-parcelles.
+    """
     fig = make_subplots(rows=1, cols=2, vertical_spacing=0.02,horizontal_spacing=0.01,
                         specs=[[{'type': 'domain'}, {'type': 'domain'}]],
                         )
@@ -226,6 +262,29 @@ def return_stat_enqueteur(data=data_final):
 ####>>>>tree graphs
 def Etude_repartition_var_dem(data=data_final,var_='Arrondissement de résidence',title='Repartition des Arrondissemnt'):
 
+    """
+    Crée un graphique en barres empilées pour visualiser la répartition des enquêtés
+    selon une variable de choix (par exemple l'arrondissement de résidence) et
+    par don de sang.
+
+    Ce graphique est composé de barres empilées qui montrent la répartition des
+    enquêtés selon la variable de choix et selon s'ils ont déjà donné du sang ou
+    non. La taille de chaque partie de la barre est proportionnelle au nombre de
+    personnes qui ont la valeur correspondante pour la variable.
+
+    La légende est affichée horizontalement en bas du graphique. Le graphique est
+    centré horizontalement et a une marge de 30 pixels en haut, et de 0 pixel sur
+    les autres côtés.
+
+    Paramètres:
+    data (pandas.DataFrame): Le DataFrame contenant les données à visualiser.
+    var_ (str): La colonne du DataFrame qui contient la variable à visualiser.
+    title (str): Le titre du graphique.
+
+    Retourne:
+    plotly.graph_objs._figure.Figure: Un objet figure Plotly représentant le
+    graphique en barres empilées.
+    """
     var_effectif = data[[var_,'A-t-il (elle) déjà donné le sang']].value_counts().to_frame().reset_index()
 
     fig2 = px.bar(var_effectif.sort_values(by='count'),
@@ -250,6 +309,24 @@ def Etude_repartition_var_dem(data=data_final,var_='Arrondissement de résidence
 #### >>>>four graphs 
 def classe_age_plot(data=data_final):
     # Définir les bornes des classes d'âge
+    """
+    Crée un graphique à barres montrant la répartition des classes d'âge.
+
+    Ce graphique est un barplot utilisant Plotly pour visualiser la répartition des classes d'âge
+    dans le DataFrame. Les classes d'âge sont définies en fonction de la variable 'Age'.
+    La taille de chaque barre est proportionnelle au nombre de personnes qui ont la valeur
+    correspondante pour la variable.
+
+    La légende est affichée horizontalement en bas du graphique. Le graphique est
+    centré horizontalement et a une marge de 30 pixels en haut, et de 0 pixel sur
+    les autres côtés.
+
+    Les couleurs sont définies pour les deux valeurs de la variable 'A-t-il (elle) déjà donné le sang' :
+    'Oui' est représenté en orange et 'Non' en bleu.
+
+    Retourne:
+    plotly.graph_objs._figure.Figure: Un objet figure Plotly représentant le graphique en barres.
+    """
     a = (pd.to_datetime(data['Date de remplissage de la fiche']).dt.year - pd.to_datetime(data['Date de naissance']).dt.year)
     data['Age'] = a.values
     
@@ -270,7 +347,7 @@ def classe_age_plot(data=data_final):
         color='A-t-il (elle) déjà donné le sang', 
         barmode='group',  # Utilisez 'group' pour des barres côte à côte ou 'stack' pour des barres empilées
         text_auto=True,
-        title='Répartition des classes d\'âge',
+        title='Répartition des classes d\'âge des candidats aux dons',
         labels={'count': 'Nombre de personnes', 'Classe_Age': 'Classe d\'âge'},
         color_discrete_map={'Oui': 'orange', 'Non': 'blue'}
     )
@@ -293,6 +370,22 @@ def classe_age_plot(data=data_final):
 ####>>>>sankey card
 def create_blood_donation_sankey(data=data_final):
     # Créer une copie des données pour éviter de modifier l'original
+    """
+    Crée un diagramme Sankey pour visualiser la répartition des dons de sang par arrondissement de résidence.
+
+    Cette fonction utilise les données fournies pour générer un diagramme Sankey, qui illustre la relation
+    entre le fait d'avoir déjà donné du sang et l'arrondissement de résidence des participants. Les flux
+    dans le diagramme montrent le nombre de personnes répondant "Oui" ou "Non" à la question de don de sang
+    pour chaque arrondissement.
+
+    Paramètres:
+    data (pandas.DataFrame): Le DataFrame contenant les données à analyser. Par défaut, il utilise `data_final`.
+
+    Retourne:
+    plotly.graph_objs._figure.Figure: Un objet Figure contenant le diagramme Sankey représentant la répartition
+    des dons de sang selon les arrondissements de résidence.
+    """
+
     df = data[['A-t-il (elle) déjà donné le sang', 'Arrondissement de résidence']].copy()
     
     # Renommer les colonnes pour plus de clarté
@@ -375,6 +468,11 @@ def create_blood_donation_sankey(data=data_final):
 
 def CarteFolium(df, var1, var2,douala_gdf=douala_gdf):
     # Supprimer les lignes avec des NaN dans Latitude ou Longitude
+    """
+    Crée une carte Folium avec des marqueurs pour chaque quartier avec le nombre de femmes et d'hommes,
+    ainsi qu'un cercle pour les éligibles.
+    """
+    
     coord_quart_cleaned = df.dropna(subset=['Latitude', 'Longitude'])
     
     # Créer une carte centrée sur les coordonnées moyennes

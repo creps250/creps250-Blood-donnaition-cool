@@ -4,31 +4,97 @@ import pandas as pd
 
 # Age moyen des personnes eligibiles
 def age_moyen_eligible(df):
+    """
+    Retourne l'âge moyen des personnes éligibles pour le don de sang
+    
+    Parameters:
+    df (pandas.DataFrame): Le DataFrame contenant les informations sur les personnes éligibles
+    
+    Returns:
+    float: L'âge moyen des personnes éligibles
+    """
     return df['age'].mean()
 
 
 
 #le nombre d'arrondisssement
 def nombre_arrondissement(df):
+    """
+    Retourne le nombre unique d'arrondissements présents dans le DataFrame.
+
+    Parameters:
+    df (pandas.DataFrame): Le DataFrame contenant les informations sur les arrondissements.
+
+    Returns:
+    int: Le nombre d'arrondissements uniques.
+    """
+
     return df['Arrondissement de résidence'].nunique()
 
  #total de quartiers 
 def total_quartiers(df): 
+    
+    """
+    Retourne le nombre unique de quartiers présents dans le DataFrame.
+
+    Parameters:
+    df (pandas.DataFrame): Le DataFrame contenant les informations sur les quartiers.
+
+    Returns:
+    int: Le nombre de quartiers uniques.
+    """
     return df['Quartier de Résidence'].nunique()
 
 
 #total d'enquetés
 
 def total_enquetes(df):
+    """
+    Retourne le nombre total d'enquêtes dans le DataFrame.
+
+    Parameters:
+    df (pandas.DataFrame): Le DataFrame contenant les informations sur les enquêtes.
+
+    Returns:
+    int: Le nombre total d'enquêtes.
+    """
+    
     return len(df)
 
 
 # Age moyen des personnes eligibiles
 def age_moyen_elig(df):
+    """
+    Calcule l'âge moyen des individus éligibles pour le don de sang.
+
+    Paramètres:
+    -----------
+    df : pandas.DataFrame
+        Le DataFrame contenant les informations sur les individus, y compris leur statut d'éligibilité et leur âge.
+
+    Retourne:
+    ---------
+    float
+        L'âge moyen arrondi des individus éligibles.
+    """
+
     return round(df[df['ÉLIGIBILITÉ AU DON.'] == 'Eligible']['Age'].mean())
 
 # Age moyen des personnes ayabnt deja donnee
 def age_moyen_don(df):
+    """
+    Calcule l'âge moyen des individus qui ont déjà donné le sang.
+
+    Paramètres:
+    -----------
+    df : pandas.DataFrame
+        Le DataFrame contenant les informations sur les individus, y compris leur statut de don et leur âge.
+
+    Retourne:
+    ---------
+    float
+        L'âge moyen arrondi des individus qui ont déjà donné le sang.
+    """
     return round(df[df['A-t-il (elle) déjà donné le sang']=='Oui']['Age'].mean())
 
 
@@ -36,11 +102,32 @@ def age_moyen_don(df):
 #pourcentage d'eligibilité
 
 def pourcentage_eligibilite(df):
+    """
+    Calcule le pourcentage d'individus éligibles pour le don de sang
+    dans le DataFrame fourni.
+
+    Parameters:
+    df (pandas.DataFrame): Le DataFrame contenant les informations
+        sur les individus, y compris leur statut d'éligibilité.
+
+    Returns:
+    float: Le pourcentage d'individus éligibles, arrondi à 2 décimales.
+    """
     return round((len(df[df['ÉLIGIBILITÉ AU DON.'] == 'Eligible']) / len(df)) * 100,2)
 
 
 # taux de dons
 def taux_don(df):
+    """
+    Calcule le taux de dons dans le DataFrame fourni.
+
+    Parameters:
+    df (pandas.DataFrame): Le DataFrame contenant les informations
+        sur les individus, y compris leur statut de don.
+
+    Returns:
+    float: Le taux de dons, arrondi à 2 décimales.
+    """
     return round((len(df[df['A-t-il (elle) déjà donné le sang']=='Oui']) *100 / len(df)),2)
 
 

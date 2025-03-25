@@ -16,6 +16,16 @@ df_elig=cluster_df(data_final)
 def page_deux(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_theme, data_final=None):
     # Si data_final n'est pas fourni, on utilise une variable globale
     
+    """
+    Crée la page 2 de l'application (Analyse de l'éligibilité) avec les éléments suivants:
+    - Une carte supérieure avec 4 cartes pour afficher les KPIs de taux d'éligibilité global, taux de dons global, âge moyen des éligibles, âge moyen des donneurs
+    - Une carte inférieure avec 2 dropdowns pour filtrer les données par sexe et status marital
+    - Une grande carte inférieure avec un graphique en barres horizontales pour afficher les principaux facteurs d'éligibilité et d'indisponibilité
+    - Une carte inférieure avec un graphique en barres verticales pour afficher les autres facteurs
+    - Une carte inférieure avec un graphique en barres verticales pour afficher les profils des personnes éligibles
+    - Une carte inférieure avec un graphique en barres verticales pour afficher les caractéristiques des personnes éligibles
+    - Une carte inférieure avec un graphique en barres verticales pour afficher les analyses des donneurs effectifs
+    """
     if theme == 'light':
         card_style = {'backgroundColor': light_theme['cardBg']}
         style_dropdow = {'width': '230px', 'backgroundColor': '#D9DADC ', 'border': 'none','fontSize': '12px'}
@@ -379,7 +389,58 @@ def page_deux(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, l
                 ])
             ], className="h-100 shadow-sm",style=card_style)
         ], md=5)
-    ], className="mb-4")    
+    ], className="mb-4"),
+    dbc.Row([
+    dbc.Col([
+        dbc.Card([
+            dbc.CardHeader([
+                html.Div([
+                    html.Div([
+                        DashIconify(
+                            icon="mdi:account-multiple-check",
+                            width=24,
+                            height=24,
+                            style={"margin-right": "10px", "vertical-align": "middle", "color": "#22C55E"}  # Green color
+                        ),
+                        "Analyses Donneurs Effectifs"
+                    ], style={"display": "flex", "align-items": "center", "font-weight": "bold"}),
+                    html.Div([
+                        dbc.Button([
+                            DashIconify(
+                                icon="mdi:view-dashboard-variant",
+                                width=16,
+                                height=16,
+                                style={"margin-right": "5px", "vertical-align": "middle"}
+                            ),
+                            "Hiérarchie"
+                        ], color="light", size="sm", className="me-2", id="btn-hierarchie"),
+                        dbc.Button([
+                            DashIconify(
+                                icon="mdi:gender-male-female",
+                                width=16,
+                                height=16,
+                                style={"margin-right": "5px", "vertical-align": "middle"}
+                            ),
+                            "Âge vs sexe"
+                        ], color="light", size="sm", id="btn-age-femme"),
+                    ], style={"display": "flex", "align-items": "center"})
+                ], style={"display": "flex", "align-items": "center", "justify-content": "space-between", "width": "100%"})
+            ]),
+            dbc.CardBody([
+                # You can add a placeholder graph or content here
+                html.Div([
+                    dcc.Graph(
+                        id='donneurs-effectifs-graph',
+                        # Replace this with an actual graph function when you have the implementation
+                        figure=create_treemap(df=df_volontaire),  
+                        responsive=True,
+                        style={'height': '460px'}
+                    )
+                ])
+            ])
+        ], className="h-100 shadow-sm", style=card_style)
+    ], md=12)  # Full width
+], className="mb-4")    
             
     ])
     
@@ -401,6 +462,14 @@ def page_deux(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, l
     prevent_initial_call=False  # Modification pour gérer le cas initial
 )
 def mettre_a_jour_figure_autre(n_clicks_indispo, n_clicks_elegi, value_sexe, indispo_disabled, elegi_disabled):
+    """
+    Met à jour le graphique "autre-raison" en fonction des boutons "autre_indispo" et "autre_elegi".
+    
+    Si le bouton "autre_indispo" est activé, affiche le graphique des raisons d'indisponibilité
+    Si le bouton "autre_elegi" est activé, affiche le graphique des raisons d'éligibilité
+    Si le bouton "sexe_list" change, met à jour le graphique en fonction de l'état actuel des boutons
+    """
+    
     ctx = callback_context
     
     # Si pas de déclencheur défini (charge initiale)
@@ -454,6 +523,34 @@ def mettre_a_jour_figure_autre(n_clicks_indispo, n_clicks_elegi, value_sexe, ind
     prevent_initial_call=False  #
 )
 def mettre_a_jour_figure_princip(n_clicks_indispo, n_clicks_elegi, value_sexe,value_status, indispo_disabled, elegi_disabled):
+    """
+    Mettre à jour le graphique principal en fonction des boutons indisponibilité et éligibilité, ainsi que des sélections de sexe et de situation matrimoniale.
+    
+    Parameters:
+    ------------
+    n_clicks_indispo : int
+        Nombre de clics sur le bouton "Indisponibilité"
+    n_clicks_elegi : int
+        Nombre de clics sur le bouton "Éligibilité"
+    value_sexe : list
+        La liste des sexes sélectionnés
+    value_status : list
+        La liste des situations matrimoniales sélectionnées
+    indispo_disabled : bool
+        L'état actuel du bouton "Indisponibilité" (True = désactivé)
+    elegi_disabled : bool
+        L'état actuel du bouton "Éligibilité" (True = désactivé)
+    
+    Returns:
+    --------
+    figure : plotly.graph_objs.Figure
+        Le graphique à afficher
+    indispo_disabled : bool
+        L'état mis à jour du bouton "Indisponibilité"
+    elegi_disabled : bool
+        L'état mis à jour du bouton "Éligibilité"
+    """
+    
     ctx = callback_context
     if isinstance(value_status, str):
         value_status = [value_status]
@@ -504,6 +601,14 @@ def mettre_a_jour_figure_princip(n_clicks_indispo, n_clicks_elegi, value_sexe,va
 )
 def update_graph_and_buttons(btn1_clicks, btn2_clicks, current_figure):
     # Identifier quel bouton a été cliqué en dernier
+    """
+    Met à jour le graphique "eligib-demograp" en fonction des boutons "page1" et "page2".
+    
+    Si le bouton "page1" est cliqué, affiche le graphique de ruban avec les variables "Niveau d'etude", "ÉLIGIBILITÉ AU DON.", "Situation Matrimoniale (SM)" et "Age_Class"
+    Si le bouton "page2" est cliqué, affiche le graphique de ruban avec les variables "Genre", "ÉLIGIBILITÉ AU DON." et "Religion"
+    Si aucun bouton n'est cliqué, conserve le graphique actuel
+    """
+    
     ctx = callback_context
     
     # Classes CSS pour le bouton actif et inactif
@@ -542,6 +647,27 @@ def update_metrics(selected_sexe, selected_status):
     # Filtrer les données en fonction des sélection
     # s
     
+    """
+    Mise à jour des indicateurs de performance en fonction des sélections de sexe et de situation matrimoniale
+    
+    Parameters:
+    ------------
+    selected_sexe : list
+        La liste des sexes sélectionnés
+    selected_status : list
+        La liste des situations matrimoniales sélectionnées
+    
+    Returns:
+    --------
+    a : str
+        Le pourcentage d'individus éligibles
+    b : str
+        Le taux de don
+    c : str
+        L'âge moyen des individus éligibles
+    d : str
+        L'âge moyen des donneurs
+    """
     if not isinstance(selected_status, list):
         selected_status = [selected_status]
     if not isinstance(selected_sexe, list):
@@ -572,6 +698,28 @@ def update_metrics(selected_sexe, selected_status):
      Input("btn-profils", "n_clicks")]
 )
 def update_chart(clusters_clicks, profils_clicks):
+    """
+    Met à jour le graphique "eligibility-factors-chart" en fonction des boutons "btn-clusters" et "btn-profils".
+    
+    Si le bouton "btn-clusters" est cliqué, affiche le graphique des clusters.
+    Si le bouton "btn-profils" est cliqué, affiche le graphique combiné des profils d'éligibilité.
+    
+    Parameters:
+    ------------
+    clusters_clicks : int
+        Nombre de clics sur le bouton "btn-clusters"
+    profils_clicks : int
+        Nombre de clics sur le bouton "btn-profils"
+    
+    Returns:
+    --------
+    fig : plotly.graph_objs.Figure
+        La figure à afficher
+    clusters_style : dict
+        Le style CSS du bouton "btn-clusters" (par défaut, un fond gris)
+    profils_style : dict
+        Le style CSS du bouton "btn-profils" (par défaut, un fond gris)
+    """
     ctx = dash.callback_context
     
     # Déterminer quel bouton a été cliqué
@@ -597,3 +745,51 @@ def update_chart(clusters_clicks, profils_clicks):
         )
     
     return fig, clusters_style, profils_style
+
+
+# Add these callback functions outside of the page_deux function
+@callback(
+    Output('donneurs-effectifs-graph', 'figure'),
+    [Input('btn-hierarchie', 'n_clicks'),
+     Input('btn-age-femme', 'n_clicks')],
+    prevent_initial_call=True
+)
+def update_graph(hierarchie_clicks, age_femme_clicks):
+    # Determine which button was clicked
+    """
+    Mise à jour du graphique "donneurs-effectifs-graph" en fonction des boutons "btn-hierarchie" et "btn-age-femme".
+
+    Si le bouton "btn-hierarchie" est cliqué, affiche le graphique de la hiérarchie des donneurs.
+    Si le bouton "btn-age-femme" est cliqué, affiche le graphique de la distribution des âges des femmes.
+
+    Parameters:
+    ------------
+    hierarchie_clicks : int
+        Nombre de clics sur le bouton "btn-hierarchie"
+    age_femme_clicks : int
+        Nombre de clics sur le bouton "btn-age-femme"
+
+    Returns:
+    --------
+    fig : plotly.graph_objs.Figure
+        La figure à afficher
+    """
+    ctx = callback_context
+    
+    if not ctx.triggered:
+        return {}
+    
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    # Use the global data_final from prossess module
+    
+    if button_id == 'btn-hierarchie':
+        # Create treemap when Hierarchie button is clicked
+        return create_treemap(df=df_volontaire)
+    elif button_id == 'btn-age-femme':
+        # Create age distribution when Âge vs Femme button is clicked
+        return create_age_distribution(df=df_volontaire)
+    
+    return {}
+
+
