@@ -1,5 +1,5 @@
 #Lien vers la video de presentation du dashboard
-https://drive.google.com/drive/u/0/folders/1wYbdOLrV-5ReXd5EAnTKCsVJFTKo3aqk?hl=fr
+https://drive.google.com/file/d/1f3YdCKQFouseKJxDnLLBhh0EjSPVX8ma/view?usp=sharing
 
 # 🩸 Tableau de Bord des Campagnes de Don de Sang
 
