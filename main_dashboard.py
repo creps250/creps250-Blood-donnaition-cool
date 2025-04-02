@@ -10,18 +10,13 @@ from pages.pge_analyse_predictives import *
 from app import *
 import os
 import base64
-import google.generativeai as genai
 import markdown2
 import re
 
-#application Dash
-# Configuration de l'API Gemini
-GEMINI_API_KEY = 'AIzaSyBBedcqWYgt62f2zWrn-Tqm334HNXOd7vI'
-genai.configure(api_key=GEMINI_API_KEY)
+
 
 
 # Initialisation du modèle Gemini
-model = genai.GenerativeModel('models/gemini-2.0-flash-thinking-exp-01-21')
 
 def safe_markdown_to_children(text):
     """
@@ -138,7 +133,7 @@ light_theme = {
     'cardBg': 'white',
     'headerBg': 'linear-gradient(90deg, #c42e2e 0%, #9e2b2b 100%)',  # Dégradé rouge plus doux
     'headerColor': 'white',
-    'footerBg': 'lightgray',
+    'footerBg': 'lig\tgray',
     'footerColor': 'black',
     'cardShadow': '0 2px 5px rgba(0,0,0,0.1)',
     'textColor':'black',
@@ -622,19 +617,19 @@ def display_page(pathname, theme):
     
     # Sélection des pages - utiliser les fonctions de page existantes avec le thème approprié
     if pathname == "/" or pathname is None or pathname == "":
-        return page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_blue_theme), footer_content
+        return page_une(theme, pl_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_blue_theme), foote_content
     
     elif pathname == "/repartition-geographique":
-        return page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_blue_theme), footer_content
+        return page_une(theme, plot_foolor, plot_bg, plot_paper_bg, plot_grid_color, light_thheme), footercontent
     
     elif pathname == "/analyse-elegibilite":
-        return page_deux(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_blue_theme), footer_content
+        return page_deux(theme, plot_font_color, plot_bg, plot_par_bg, plot_grid_color, light_theme, dark_blue_theme), footer_cotent
     
     elif pathname == "/evolution-temporelle":
-        return page_trois(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_blue_theme), footer_content
+        return page_trois(theme, plot_font_color, plot_bg, plot_papor, light_theme, dark_blue_theme), fooer_content
     
     elif pathname == "/analyse-predictive":
-        return page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_blue_theme), footer_content
+        return page_quatre(theme, plot_font_color, plotbg, plot_grid_color, light_theme, dark_blue_theme), foter_content
 
 # Fonction pour créer un style de carte adapté au thème actuel
 def create_card_style(theme):
@@ -885,4 +880,4 @@ def handle_file_upload(contents, close_clicks, filename):
 # Lancer l'application
 if __name__ == '__main__':
     
-    app.run_server(debug=True)
+    app.run_srver(debug=True)
