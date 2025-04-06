@@ -1,0 +1,20 @@
+/* Styles pour la page À propos */
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+.team-member-img {
+    transition: all 0.3s ease;
+}
+
+.team-card:hover .team-member-img {
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .team-card {
+        margin-bottom: 20px;
+    }
+}

@@ -1,0 +1,296 @@
+.input-field:focus {
+    border-color: #c42e2e !important;
+    box-shadow: 0 0 0 3px rgba(196, 46, 46, 0.3) !important;
+}
+
+.recommendation-item {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.recommendation-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.prediction-success {
+    animation: pulse 2s infinite;
+}
+
+.slider-custom .rc-slider-track {
+    background-color: #c42e2e !important;
+}
+
+.slider-custom .rc-slider-handle {
+    border: 2px solid #c42e2e !important;
+}
+
+.slider-custom .rc-slider-handle:hover {
+    box-shadow: 0 0 0 3px rgba(196, 46, 46, 0.3) !important;
+}
+
+.section-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+#blood-drop-icon .icon-wrapper {
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+#blood-drop-icon:hover .icon-wrapper {
+    transform: scale(1.1) rotate(10deg);
+    filter: drop-shadow(0 0 15px rgba(196, 46, 46, 0.7));
+}
+
+.predict-button {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.predict-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+}
+
+.predict-button:hover::after {
+    transform: translateX(100%);
+    transition: transform 0.5s ease;
+}
+
+.predict-button:active {
+    transform: scale(0.98);
+}
+
+.tab-container {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+
+/* Animation pour le toggle switch */
+
+.toggle-switch-ball {
+    transition: transform 0.3s ease;
+}
+
+.toggle-switch input:checked+.toggle-switch-ball {
+    transform: translateX(20px);
+}
+
+
+/* Style pour le composant Radio Items */
+
+.custom-radio {
+    display: flex;
+    gap: 15px;
+}
+
+.custom-radio-option {
+    position: relative;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px solid #e1e5eb;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.custom-radio-option:hover {
+    border-color: #c42e2e;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.custom-radio-option input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.custom-radio-option input:checked+span {
+    font-weight: bold;
+}
+
+.custom-radio-option.selected {
+    border-color: #c42e2e;
+    background-color: rgba(196, 46, 46, 0.1);
+    font-weight: bold;
+}
+
+
+/* Animation pour les cartes */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+
+/* Plus d'animations pour les sections */
+
+.section-animate {
+    animation: sectionFadeIn 0.6s ease forwards;
+}
+
+@keyframes sectionFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Style pour les badges */
+
+.category-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Style pour les onglets */
+
+.custom-tab {
+    padding: 15px 20px;
+    border-radius: 10px 10px 0 0;
+    margin-right: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: none;
+    font-weight: 600;
+}
+
+.custom-tab.active {
+    border-top: 3px solid #c42e2e;
+    background-color: white;
+}
+
+.custom-tab-content {
+    padding: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+}
+
+
+/* Switch personnalisé */
+
+.toggle-container {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+}
+
+.toggle-switch {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 30px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.toggle-switch:checked+.toggle-slider {
+    background-color: #c42e2e;
+}
+
+.toggle-switch:checked+.toggle-slider:before {
+    transform: translateX(30px);
+}
+
+
+/* Style pour les groupes d'options */
+
+.option-group {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.option-group:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.option-group-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #c42e2e;
+    display: flex;
+    align-items: center;
+}
+
+.option-group-title i {
+    margin-right: 8px;
+}

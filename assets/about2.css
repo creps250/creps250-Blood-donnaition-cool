@@ -1,0 +1,56 @@
+/* about_us.css */
+
+@keyframes card-hover {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-10px);
+    }
+}
+
+.team-card:hover {
+    animation: card-hover 0.3s forwards;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+
+/* Styles pour les effets de bannière */
+
+.banner-bg-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.blood-drop-1,
+.blood-drop-2,
+.blood-drop-3 {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.blood-drop-1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -50px;
+}
+
+.blood-drop-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -80px;
+    left: 10%;
+}
+
+.blood-drop-3 {
+    width: 150px;
+    height: 150px;
+    top: 30%;
+    left: -50px;
+}

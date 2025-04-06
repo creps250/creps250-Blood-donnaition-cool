@@ -1,17 +1,140 @@
 from packages.pkg_localisation_geo import *
-from dash import html, dcc, callback_context,ctx
+from dash import html, dcc, callback_context, ctx
 import dash_bootstrap_components as dbc
 from dash_iconify import DashIconify
 from packages.pkg_kpi import *
 from prossess_data.prossess import data_final
 from app import *
 from dash.dependencies import Input, Output, State
+import json
 
-card_style={}
+card_style = {}
+with open("Translation/traduction_repartition_geo.json", "r", encoding="utf-8") as fichier:
+    TRANSLATIONS = json.load(fichier)
 
-def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_theme):
+
+# Composant pour l'icône d'aide et le modal explicatif
+def create_help_icon(modal_id, theme, language="fr"):
+    """
+    Crée une icône d'aide avec un effet de pulsation qui ouvre un modal explicatif.
     
+    Args:
+        modal_id (str): ID unique pour le modal
+        theme (str): Thème actuel ('light' ou 'dark')
+        language (str): Langue actuelle ('fr' ou 'en')
+        
+    Returns:
+        html.Div: Un div contenant l'icône d'aide positionnée
+    """
+    translations = TRANSLATIONS[language]
+    
+    return html.Div([
+        html.Button(
+            DashIconify(
+                icon="carbon:help",
+                width=24,
+                height=24,
+                color="#ffffff" if theme == 'dark' else "#3A7AB9",
+            ),
+            id=f"help-btn-{modal_id}",
+            className="help-icon-btn",
+            n_clicks=0,
+            title=translations["Aide"],
+            **{"data-bs-toggle": "tooltip", "data-bs-placement": "top"}
+        ),
+    ], className="help-icon-container")
+
+# Composant pour créer un modal explicatif
+def create_explanatory_modal(modal_id, description, theme, language="fr"):
+    """
+    Crée un modal explicatif avec une description du graphique.
+    
+    Args:
+        modal_id (str): ID unique pour le modal
+        description (str): Description du graphique à afficher
+        theme (str): Thème actuel ('light' ou 'dark')
+        language (str): Langue actuelle ('fr' ou 'en')
+        
+    Returns:
+        dbc.Modal: Un composant modal de Bootstrap Dash
+    """
+    translations = TRANSLATIONS[language]
+    
+    # Classe du modal selon le thème
+    modal_class = "dark-mode-modal" if theme == 'dark' else "light-mode-modal"
+    
+    # Styles pour le bouton
+    button_style = {
+        'backgroundColor': '#3A7AB9',
+        'color': 'white',
+        'borderRadius': '8px',
+        'fontWeight': 'bold',
+        'border': 'none',
+        'padding': '8px 20px',
+        'transition': 'all 0.2s ease'
+    }
+    
+    # Composant modal
+    return dbc.Modal(
+        [
+            dbc.ModalHeader(
+                dbc.ModalTitle([
+                    DashIconify(
+                        icon="carbon:chart-relationship",
+                        width=24,
+                        height=24,
+                        style={"marginRight": "10px"}
+                    ),
+                    translations["Comprendre ce graphique"]
+                ]),
+                close_button=True
+            ),
+            dbc.ModalBody([
+                html.P(description, style={
+                    'fontSize': '1rem',
+                    'lineHeight': '1.6',
+                    'marginBottom': '20px'
+                }),
+                # Option pour ajouter une image d'exemple ou une illustration
+                html.Div([
+                    DashIconify(
+                        icon="carbon:idea",
+                        width=24,
+                        height=24,
+                        className="tip-icon"
+                    ),
+                    html.Span("Astuce : Survolez les éléments du graphique pour voir les détails.", 
+                             className="tip-text")
+                ], className="tip-box")
+            ]),
+            dbc.ModalFooter(
+                dbc.Button(
+                    translations["Fermer"],
+                    id=f"close-{modal_id}",
+                    className="ms-auto",
+                    n_clicks=0,
+                    style=button_style
+                )
+            ),
+        ],
+        id=f"modal-{modal_id}",
+        is_open=False,
+        centered=True,
+        size="lg",
+        backdrop="static",
+        scrollable=True,
+        className=modal_class
+    )
+
+def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_theme, language="fr"):
+    """
+    Génère la première page du tableau de bord avec des indicateurs et des graphiques interactifs.
+    
+    Chaque graphique est accompagné d'un icône d'aide qui, lorsqu'il est cliqué, ouvre un modal explicatif
+    adapté au niveau de compréhension d'un utilisateur non technique.
+    """
     global card_style
+    translations = TRANSLATIONS[language]
     
     if theme == 'light':
         card_style = {'backgroundColor': light_theme['cardBg']}
@@ -21,7 +144,7 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
         style_dropdow = {'width': '150px', 'backgroundColor': 'black', 'border': 'none','fontSize': '12px','color':'black'}
             
     liste_arrondissement = data_final['Arrondissement de résidence'].unique()
-    geo_vars=["Niveau d'etude", "Genre",'Situation Matrimoniale (SM)','A-t-il (elle) déjà donné le sang','ÉLIGIBILITÉ AU DON.'] 
+    geo_vars=[translations["Niveau d'etude"], translations["Genre"], translations["Situation Matrimoniale (SM)"], translations["A-t-il (elle) déjà donné le sang"], translations["ÉLIGIBILITÉ AU DON."]]
     
     # Création des quatre cartes avec dbc.Card
     card1 = dbc.Card([
@@ -33,15 +156,15 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                         icon="mdi:account-group", 
                         width=20 
                     ),
-                    html.Span("Caracteristique demographique"),
+                    html.Span(translations["Caracteristique demographique"]),
 
                     # Dropdown personnalisé
                     dcc.Dropdown(
                         id='caract-demo1',
                         options=[
-                            {'label': 'Religion', 'value': 'Religion'},
-                            {'label': 'Situation Matrimoniale', 'value': 'Situation Matrimoniale (SM)'},
-                            {'label': 'Age', 'value': 'Age'}
+                            {'label': translations["Religion"], 'value': 'Religion'},
+                            {'label': translations["Situation Matrimoniale"], 'value': 'Situation Matrimoniale (SM)'},
+                            {'label': translations["Age"], 'value': 'Age'}
                         ],
                         clearable=False,
                         value='Religion',  # Option par défaut
@@ -58,91 +181,104 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                 figure=Etude_repartition_var_dem(
                     data=data_final,
                     var_='Religion',
-                    title='Repartition des Religions des candidats aux don'
+                    title=translations["Repartition des Religions des candidats aux don"],
+                    language=language
                 ),
                 responsive=True,
                 style={'height': '370px'}
             )
-        ], style={'height': '380px', "padding-top": "0px"})
-    ],style=card_style)
+        ], style={'height': '380px', "padding-top": "0px"}),
+        # Ajout de l'icône d'aide
+        create_help_icon("demo", theme, language),
+        # Modal explicatif pour ce graphique
+        create_explanatory_modal("demo", translations["demo_description"], theme, language)
+    ], style=card_style, className="card-container")
 
     card2 = dbc.Card([
-    dbc.CardHeader(
-        html.Div(
-            [
-                # Partie gauche avec icône et titre
-                html.Div(
-                    [
-                        # Icône avec DashIconify
-                        DashIconify(
-                            icon="mdi:gender-male-female", 
-                            width=20
-                        ),
-                        html.Span("Sexe et Nationalité"),
-                    ],
-                    className="d-flex align-items-center gap-2"
-                ),
-                
-                # Partie centrale avec dropdown
-                dcc.Dropdown(
-                    id='arrondissement',
-                    options=[
-                        {'label': i, 'value': i} for i in liste_arrondissement
-                    ],
-                    clearable=True,
-                    multi=True,maxHeight=100,
-                    value=liste_arrondissement[0],  # Option par défaut
-                    style={**style_dropdow,'width':'300px'}
-                ),
-                
-                # Partie droite avec bouton effacer filtre
-                html.Button(
-                    [
-                        DashIconify(icon="mdi:filter-remove", width=16, style={"marginRight": "5px"}),
-                        "Effacer filtre"
-                    ],
-                    id="clear-filter-button",
-                    className="btn btn-outline-secondary btn-sm",
-                    style={
-                        'fontSize': '12px',
-                        'display': 'flex',
-                        'alignItems': 'center',
-                        'justifyContent': 'center',
-                        'padding': '4px 8px'
-                    }
-                )
-            ],
-            # Alignement horizontal et espacement via Bootstrap
-            className="d-flex justify-content-between align-items-center"
-        )
-    ),
-    dbc.CardBody([
-        dcc.Graph(
-            id='sexe_nationna',
-            figure=return_stat_enqueteur(data=data_final),
-            responsive=True,
-            style={'height': '370px'}
-        )
-    ], style={'height': '380px', "padding-top": "0px"})
-],style=card_style)
+        dbc.CardHeader(
+            html.Div(
+                [
+                    # Partie gauche avec icône et titre
+                    html.Div(
+                        [
+                            # Icône avec DashIconify
+                            DashIconify(
+                                icon="mdi:gender-male-female", 
+                                width=20
+                            ),
+                            html.Span(translations["Sexe et Nationalité"]),
+                        ],
+                        className="d-flex align-items-center gap-2"
+                    ),
+                    
+                    # Partie centrale avec dropdown
+                    dcc.Dropdown(
+                        id='arrondissement',
+                        options=[
+                            {'label': i, 'value': i} for i in liste_arrondissement
+                        ],
+                        clearable=True,
+                        multi=True, maxHeight=100,
+                        value=liste_arrondissement[0],  # Option par défaut
+                        style={**style_dropdow,'width':'300px'}
+                    ),
+                    
+                    # Partie droite avec bouton effacer filtre
+                    html.Button(
+                        [
+                            DashIconify(icon="mdi:filter-remove", width=16, style={"marginRight": "5px"}),
+                            translations["Effacer filtre"]
+                        ],
+                        id="clear-filter-button",
+                        className="btn btn-outline-secondary btn-sm",
+                        style={
+                            'fontSize': '12px',
+                            'display': 'flex',
+                            'alignItems': 'center',
+                            'justifyContent': 'center',
+                            'padding': '4px 8px'
+                        }
+                    )
+                ],
+                # Alignement horizontal et espacement via Bootstrap
+                className="d-flex justify-content-between align-items-center"
+            )
+        ),
+        dbc.CardBody([
+            dcc.Graph(
+                id='sexe_nationna',
+                figure=return_stat_enqueteur(data=data_final, language=language),
+                responsive=True,
+                style={'height': '370px'}
+            )
+        ], style={'height': '380px', "padding-top": "0px"}),
+        # Ajout de l'icône d'aide
+        create_help_icon("sexe-nat", theme, language),
+        # Modal explicatif pour ce graphique
+        create_explanatory_modal("sexe-nat", translations["sexe_nat_description"], theme, language)
+    ], style=card_style, className="card-container")
     
     card3 = dbc.Card([
         dbc.CardHeader(
             html.Div(
                 [
                     DashIconify(icon="mdi:chart-bar", width=20),
-                    html.Span("Arrondissement de don")
+                    html.Span(translations["Arrondissement de don"])
                 ],
                 className="d-flex align-items-center gap-2"
             )
         ),
         dbc.CardBody(
             dcc.Graph(
-                figure=create_blood_donation_sankey(data=data_final),
+                figure=create_blood_donation_sankey(data=data_final, language=language),
                 responsive=True,
                 style={'height': '370px'}
-            ), style={'height': '390px'})
-    ],style=card_style)
+            ), style={'height': '390px'}),
+        # Ajout de l'icône d'aide
+        create_help_icon("arrondissement", theme, language),
+        # Modal explicatif pour ce graphique
+        create_explanatory_modal("arrondissement", translations["arrondissement_description"], theme, language)
+    ], style=card_style, className="card-container")
 
     
     card4 = dbc.Card([
@@ -153,7 +289,7 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                             html.Div(
                                 [
                                     DashIconify(icon="mdi:map-marker", width=20),
-                                    html.Span("Cartographie des zones enquêtes",style={'fontsize':'10px'})
+                                    html.Span(translations["Cartographie des zones enquêtes"], style={'fontsize':'10px'})
                                 ],
                                 className="d-flex align-items-center gap-2"
                             ),
@@ -166,7 +302,7 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                                         options=[
                                             {"label": i, "value": i} for i in geo_vars
                                         ],
-                                        placeholder="variable",
+                                        placeholder=translations["variable"],
                                         className="me-2",
                                         style={**style_dropdow,'width':'100px'}
                                     ),
@@ -175,7 +311,7 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                                         options=[
                                             {"label": "Option 1", "value": "opt1"}
                                         ],
-                                        placeholder="modalite1",
+                                        placeholder=translations["modalite1"],
                                         className="me-2",
                                         style={**style_dropdow,'width':'100px'}
                                     ),
@@ -184,7 +320,7 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                                         options=[
                                             {"label": "Option 1", "value": "opt1"},
                                         ],
-                                        placeholder="modalite2",
+                                        placeholder=translations["modalite2"],
                                         style={**style_dropdow,'width':'100px'}
                                     ),
                                     # Boutons de localisation et plein écran
@@ -222,15 +358,26 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                 ),
                 dbc.CardBody(
                     dcc.Graph(
-                        figure=Carte_arrondissement(data_name=communes,variable_name="Prop Candidats aux dons",titre="Proportion des candidats aux dons",label_name='Arrondissement de résidence',legend_name="donnateurs"),
+                        figure=Carte_arrondissement(
+                            data_name=communes,
+                            variable_name="Prop Candidats aux dons",
+                            titre=translations["Proportion des candidats aux dons"],
+                            label_name='Arrondissement de résidence',
+                            legend_name=translations["donnateurs"],
+                            language=language
+                        ),
                         id='carto-graph',
                         responsive=True,
                         style={'height': '360px'}
                     ), 
                     style={'height': '380px'},
                     id='carte'
-                )
-            ],style=card_style, id='card4')
+                ),
+                # Ajout de l'icône d'aide
+                create_help_icon("carto", theme, language),
+                # Modal explicatif pour ce graphique
+                create_explanatory_modal("carto", translations["carto_description"], theme, language)
+            ], style=card_style, id='card4', className="card-container")
     
     
     return html.Div([
@@ -250,7 +397,7 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                         ], style={"float": "left", "margin-right": "15px", "background-color": "#F7A93B", "padding": "15px", "border-radius": "5px"}),
                         html.Div([
                             html.H2(total_enquetes(data_final), className="card-title",id='total_enquet'),  ### indicateur
-                            html.P("Total enquêtes"),
+                            html.P(translations["Total enquêtes"]),
                         ]),
                     ])
                 ], className="mb-4 shadow-sm",style=card_style)
@@ -270,7 +417,7 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                         ], style={"float": "left", "margin-right": "15px", "background-color": "#3A7AB9", "padding": "15px", "border-radius": "5px"}),
                         html.Div([
                             html.H2(nombre_arrondissement(data_final), className="card-title",id='nombre_arrondissem'),  ### indicateur
-                            html.P("Nombre d'arrondissements"),
+                            html.P(translations["Nombre d'arrondissements"]),
                         ]),
                     ])
                 ], className="mb-4 shadow-sm",style=card_style)
@@ -290,7 +437,7 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
                         ], style={"float": "left", "margin-right": "15px", "background-color": "#48B95E", "padding": "15px", "border-radius": "5px"}),
                         html.Div([
                             html.H2(total_quartiers(data_final), className="card-title",id='total_quart'),  ### indicateur
-                            html.P("Total quartiers"),
+                            html.P(translations["Total quartiers"]),
                         ]),
                     ])
                 ], className="mb-4 shadow-sm",style=card_style)
@@ -308,17 +455,58 @@ def page_une(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, li
     ])
     
 
+# Callbacks pour les icônes d'aide et les modals
+@app.callback(
+    Output("modal-demo", "is_open"),
+    [Input("help-btn-demo", "n_clicks"), Input("close-demo", "n_clicks")],
+    [State("modal-demo", "is_open")],
+)
+def toggle_modal_demo(n_open, n_close, is_open):
+    if n_open or n_close:
+        return not is_open
+    return is_open
 
+@app.callback(
+    Output("modal-sexe-nat", "is_open"),
+    [Input("help-btn-sexe-nat", "n_clicks"), Input("close-sexe-nat", "n_clicks")],
+    [State("modal-sexe-nat", "is_open")],
+)
+def toggle_modal_sexe_nat(n_open, n_close, is_open):
+    if n_open or n_close:
+        return not is_open
+    return is_open
 
+@app.callback(
+    Output("modal-arrondissement", "is_open"),
+    [Input("help-btn-arrondissement", "n_clicks"), Input("close-arrondissement", "n_clicks")],
+    [State("modal-arrondissement", "is_open")],
+)
+def toggle_modal_arrondissement(n_open, n_close, is_open):
+    if n_open or n_close:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output("modal-carto", "is_open"),
+    [Input("help-btn-carto", "n_clicks"), Input("close-carto", "n_clicks")],
+    [State("modal-carto", "is_open")],
+)
+def toggle_modal_carto(n_open, n_close, is_open):
+    if n_open or n_close:
+        return not is_open
+    return is_open
     
 @app.callback(
     Output('var-demograp', 'figure'),
     Output('total_enquet', 'children'),
     [Input('caract-demo1', 'value'),
-     Input('arrondissement','value')
+     Input('arrondissement','value'),
+     Input('language-store', 'data')
     ] 
 )
-def update_caractdemo(selected_val,selected_arr):
+def update_caractdemo(selected_val, selected_arr, language):
+    translations = TRANSLATIONS[language]
+    
     if isinstance(selected_arr, str):
         selected_arr = [selected_arr]
     # Mise à jour du graphique en fonction de la sélection 
@@ -326,18 +514,20 @@ def update_caractdemo(selected_val,selected_arr):
         a = Etude_repartition_var_dem(
             data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)],
             var_='Religion',
-            title='Repartition des Religions des candidats aux don'
+            title=translations["Repartition des Religions des candidats aux don"],
+            language=language
         )
         b=total_enquetes(data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])
     elif selected_val == 'Situation Matrimoniale (SM)':
         a = Etude_repartition_var_dem(
             data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)],
             var_='Situation Matrimoniale (SM)',
-            title='Repartition de la situation matrimonial des candidats aux dons'
+            title=translations["Repartition de la situation matrimonial des candidats aux dons"],
+            language=language
         )
         b=total_enquetes(data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])
     elif selected_val == 'Age':
-        a = classe_age_plot(data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])
+        a = classe_age_plot(data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)], language=language)
         b=total_enquetes(data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])
     if not ctx.triggered:
         b=total_enquetes(data_final)    
@@ -349,12 +539,13 @@ def update_caractdemo(selected_val,selected_arr):
 ######pour le statut matrimonial
 @app.callback(
     Output('sexe_nationna', 'figure'),
-    Input('arrondissement','value')  
+    [Input('arrondissement','value'),
+     Input('language-store', 'data')]
 )
-def update_graph(selected_arr):
+def update_graph(selected_arr, language):
     if isinstance(selected_arr, str):
         selected_arr = [selected_arr]
-    return return_stat_enqueteur(data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])
+    return return_stat_enqueteur(data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)], language=language)
 
 
 
@@ -367,10 +558,13 @@ def update_graph(selected_arr):
     Output('total_quart', 'children',allow_duplicate=True),
     [Input('clear-filter-button', 'n_clicks'),
      Input('arrondissement','value'),
-     Input('caract-demo1', 'value'),],
+     Input('caract-demo1', 'value'),
+     Input('language-store', 'data')],
     prevent_initial_call=True
 )
-def reset_arrondissement_dropdown(n_clicks,selected_arr,select_caract):
+def reset_arrondissement_dropdown(n_clicks, selected_arr, select_caract, language):
+    translations = TRANSLATIONS[language]
+    
     if isinstance(selected_arr, str):
         selected_arr = [selected_arr]
     if n_clicks:
@@ -379,38 +573,42 @@ def reset_arrondissement_dropdown(n_clicks,selected_arr,select_caract):
             a = Etude_repartition_var_dem(
                 data=data_final,
                 var_='Religion',
-                title='Repartition des Religions des candidats aux don'
+                title=translations["Repartition des Religions des candidats aux don"],
+                language=language
             )
         elif select_caract == 'Situation Matrimoniale (SM)':
             a = Etude_repartition_var_dem(
                 data=data_final,
                 var_='Situation Matrimoniale (SM)',
-                title='Repartition de la situation matrimonial des candidats aux dons'
+                title=translations["Repartition de la situation matrimonial des candidats aux dons"],
+                language=language
             )
         elif select_caract == 'Age':
-            a = classe_age_plot(data=data_final)
+            a = classe_age_plot(data=data_final, language=language)
             
-        return return_stat_enqueteur(data=data_final),a,\
-            total_enquetes(data_final),nombre_arrondissement(data_final),\
+        return return_stat_enqueteur(data=data_final, language=language), a,\
+            total_enquetes(data_final), nombre_arrondissement(data_final),\
             total_quartiers(data_final)    
     else:
         if select_caract == 'Religion':
             a = Etude_repartition_var_dem(
                 data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)],
                 var_='Religion',
-                title='Repartition des Religions des candidats aux don'
+                title=translations["Repartition des Religions des candidats aux don"],
+                language=language
             )
         elif select_caract == 'Situation Matrimoniale (SM)':
             a = Etude_repartition_var_dem(
                 data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)],
                 var_='Situation Matrimoniale (SM)',
-                title='Repartition de la situation matrimonial des candidats aux dons'
+                title=translations["Repartition de la situation matrimonial des candidats aux dons"],
+                language=language
             )
         elif select_caract == 'Age':
-            a = classe_age_plot(data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])
+            a = classe_age_plot(data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)], language=language)
     
 
-    return return_stat_enqueteur(data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)]),a,\
+    return return_stat_enqueteur(data=data_final[data_final['Arrondissement de résidence'].isin(selected_arr)], language=language), a,\
                     total_enquetes(data_final[data_final['Arrondissement de résidence'].isin(selected_arr)]),\
                     nombre_arrondissement(data_final[data_final['Arrondissement de résidence'].isin(selected_arr)]),\
                     total_quartiers(data_final[data_final['Arrondissement de résidence'].isin(selected_arr)])        
@@ -478,38 +676,36 @@ def update_dropdown(value,var):
 @app.callback(
     Output("carte", "children"),
     [Input('var-1', 'value'),
-    Input('var-2','value')],
+     Input('var-2', 'value'),
+     Input('language-store', 'data')],
     prevent_initial_call=True
 )
-def update_dropdown(value1,value2):
+def update_dropdown(value1, value2, language):
     
     return dcc.Graph(
-                figure=cartographie_quartier(var1=value1,var2 =value2 ),
+                figure=cartographie_quartier(var1=value1, var2=value2, language=language),
                 responsive=True,
                 style={'height': '360px'}
             )
 
 
-
 @app.callback(
-    Output("carte", "children",allow_duplicate=True),
-    Input("btn-location", "n_clicks"),
+    Output("carte", "children", allow_duplicate=True),
+    [Input("btn-location", "n_clicks"),
+     Input('language-store', 'data')],
     prevent_initial_call=True
 )
-def update_map(n_clicks):
+def update_map(n_clicks, language):
     if n_clicks:
         # Assurez-vous que coord_quart est disponible dans ce scope
         # Vous pourriez avoir besoin de le charger ici ou de le passer via un State
         return html.Iframe(
             id='map', 
-            srcDoc=CarteFolium(coord_quart, "Femme", "Homme"), 
+            srcDoc=CarteFolium(coord_quart, "Femme", "Homme", language=language), 
             width='100%', 
             height='340'
         )
-        
-
-
-
+    return dash.no_update  # Ne pas modifier si aucun clic
 
 
 @app.callback(
@@ -528,7 +724,8 @@ def toggle_card_fullscreen(n_clicks_fullscreen, n_clicks_exit):
         'backgroundColor': card_style.get('backgroundColor', 'white'),
         'width': '100%',  # Ensure full width of container
         'height': 'auto',  # Allow content to define height
-        'transition': 'all 0.3s ease'
+        'transition': 'all 0.3s ease',
+        'position': 'relative'  # Ajout pour positionner l'icône d'aide
     }
     
     # Fullscreen style that preserves original card characteristics
@@ -579,13 +776,4 @@ def toggle_card_fullscreen(n_clicks_fullscreen, n_clicks_exit):
         exit_fullscreen_btn_style['display'] = 'none'
         return default_card_style, fullscreen_btn_style, exit_fullscreen_btn_style
     
-    return default_card_style, fullscreen_btn_style, exit_fullscreen_btn_style  
-   
-   
-   
-   
-   
-   
-   
-   
-   
+    return default_card_style, fullscreen_btn_style, exit_fullscreen_btn_style

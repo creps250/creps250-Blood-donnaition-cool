@@ -1,0 +1,238 @@
+/* Styles modernes pour l'en-tête */
+.modern-header {
+    padding: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background: transparent;
+}
+
+/* Effet glassmorphism pour le conteneur principal */
+.glassmorphism {
+    background: linear-gradient(135deg, rgba(196, 46, 46, 0.95), rgba(158, 43, 43, 0.85));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    min-height: 70px;
+}
+
+/* Section logo et titre */
+.header-left {
+    gap: 16px;
+}
+
+.logo-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 15px;
+}
+
+/* Animation de pulsation pour le logo */
+.header-logo-pulse {
+    animation: logo-pulse 3s infinite alternate ease-in-out;
+    transform-origin: center;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
+}
+
+@keyframes logo-pulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4)); }
+    100% { transform: scale(1.05); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7)); }
+}
+
+/* Mini goutte de sang décorative à côté du logo */
+.blood-drop-mini {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 14px;
+    height: 14px;
+    background-color: #ff3b3b;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 0 10px rgba(255, 59, 59, 0.7);
+    animation: float 2s infinite alternate ease-in-out;
+}
+
+@keyframes float {
+    0% { transform: rotate(-45deg) translateY(0); }
+    100% { transform: rotate(-45deg) translateY(-3px); }
+}
+
+/* Styles pour le titre */
+.title-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-title {
+    font-weight: 700;
+    color: white;
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.header-subtitle {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 1px;
+    margin-top: 2px;
+    font-weight: 300;
+}
+
+/* Section navigation et actions */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Séparateur vertical */
+.header-divider {
+    height: 30px;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin: 0 5px;
+}
+
+/* Container pour les boutons de navigation */
+.nav-buttons-container {
+    display: flex;
+    gap: 5px;
+}
+
+/* Styles pour les boutons d'action */
+.action-buttons-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.preference-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* Style commun pour les boutons d'action */
+.action-button {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    color: white !important;
+    font-weight: 500 !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+}
+
+.action-button:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Indicateur de langue */
+.language-indicator {
+    width: 6px;
+    height: 6px;
+    background-color: #4cff4c;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+}
+
+.btn-text {
+    font-weight: 500;
+    margin-left: 3px;
+}
+
+/* Style pour les boutons flottants */
+.floating-action-button {
+    position: relative !important;
+    bottom: auto !important;
+    right: auto !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+}
+
+.floating-action-button:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Couleurs spécifiques pour chaque type de bouton */
+.download-button .action-icon {
+    color: #f7a93b !important;
+}
+
+.excel-button .action-icon {
+    color: #2ecc71 !important;
+}
+
+.form-button .action-icon {
+    color: #3498db !important;
+}
+
+.ai-button .action-icon {
+    color: #9b59b6 !important;
+}
+
+/* Adaptations responsives */
+@media (max-width: 992px) {
+    .header-content {
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+    }
+    
+    .header-right {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .header-divider {
+        display: none;
+    }
+    
+    .header-subtitle {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-buttons-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .action-buttons-container {
+        margin-top: 5px;
+    }
+}

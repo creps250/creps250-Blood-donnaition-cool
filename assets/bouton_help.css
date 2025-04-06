@@ -1,0 +1,58 @@
+.help-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    padding: 5px;
+    border-radius: 50%;
+}
+
+.help-icon-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.help-icon-container {
+    transition: all 0.3s ease;
+}
+
+
+/* Animation de pulsation pour attirer l'attention */
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+}
+
+
+/* Appliquer l'animation aux boutons d'aide lors du chargement initial */
+
+.page-loaded .help-icon-btn {
+    animation: pulse 2s ease-in-out 3;
+}
+
+
+/* Styles pour la boîte de conseils dans les modaux */
+
+.tip-box {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-left: 4px solid #3A7AB9;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+}
