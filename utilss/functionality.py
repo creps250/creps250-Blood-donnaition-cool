@@ -9,6 +9,7 @@ from dash import html
 import socket
 from utilss.auth_utils import get_admin_email
 from dash_iconify import DashIconify
+import pandas as pd
 
 
 
@@ -160,6 +161,27 @@ def get_icon(name, size=20, color="#e74c3c", with_animation=False, animation_typ
         color=color,
         className=animation_class
     )
+
+# Fonction pour calculer l'IMC (BMI)
+def calculate_bmi(height_cm, weight_kg):
+    """
+    Calcule l'indice de masse corporelle (IMC/BMI)
+    
+    Args:
+        height_cm (float): Taille en centimètres
+        weight_kg (float): Poids en kilogrammes
+        
+    Returns:
+        float: Valeur de l'IMC
+    """
+    if height_cm <= 0 or weight_kg <= 0:
+        return 0
+    height_m = height_cm / 100
+    return round(weight_kg / (height_m * height_m), 1)
+
+# Fonction pour obtenir la catégorie et la couleur de l'IMC
+
+# Fonction utilitaire pour créer des icônes avec animations et effets
 
 # Fonction pour calculer l'IMC (BMI)
 def calculate_bmi(height_cm, weight_kg):
@@ -380,7 +402,6 @@ def create_probability_gauge(probability, title, color, plot_font_color="black",
         )
     
     return fig
-
 #Créer une fonction pour afficher les raisons et recommandations
 def create_reasons_recommendations_display():
     """
@@ -474,6 +495,18 @@ def create_reasons_recommendations_display():
             'gap': '20px'
         }, className="flex-container")
     ], id="details-container", style={'display': 'none'})
+
+def hex_to_rgba(hex_color, alpha=1.0):
+    """Convertit une couleur hexadécimale en format rgba avec transparence"""
+    hex_color = hex_color.lstrip('#')
+    if len(hex_color) == 3:
+        hex_color = ''.join([c*2 for c in hex_color])
+    
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    
+    return f'rgba({r}, {g}, {b}, {alpha})'
 
  
  

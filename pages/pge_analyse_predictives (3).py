@@ -11,151 +11,14 @@ from dash_iconify import DashIconify
 import json
 import plotly.express as px
 import numpy as np
-import base64
-import io
-import pandas as pd
-from dash import dash_table
-from dash.exceptions import PreventUpdate
-from pydantic import BaseModel
-import math
 from utilss.functionality import *
-
 
 
 with open("Translation/traduction_prediction.json", "r", encoding="utf-8") as fichier:
     TRANSLATIONS = json.load(fichier)
 
-def clean_json_dict(data):
-    """
-    Supprime les clés avec des valeurs NaN et remplace les valeurs infinies
-    dans un dictionnaire, y compris dans les structures imbriquées.
-    
-    Args:
-        data: Un dictionnaire, une liste ou une autre structure de données
-        
-    Returns:
-        La structure nettoyée compatible avec JSON
-    """
-    if isinstance(data, dict):
-        result = {}
-        for key, value in data.items():
-            # Vérifier si la valeur est NaN
-            if isinstance(value, float) and (np.isnan(value) or math.isnan(value)):
-                # Ignorer cette clé
-                continue
-            # Vérifier si la valeur est infinie
-            elif isinstance(value, float) and (np.isinf(value) or math.isinf(value)):
-                # Ignorer cette clé également
-                continue
-            elif isinstance(value, (dict, list)):
-                # Traiter récursivement les structures imbriquées
-                cleaned = clean_json_dict(value)
-                result[key] = cleaned
-            else:
-                # Conserver les autres valeurs
-                result[key] = value
-        return result
-    elif isinstance(data, list):
-        # Traiter chaque élément de la liste
-        return [clean_json_dict(item) for item in data if not (
-            isinstance(item, float) and (np.isnan(item) or math.isnan(item) or np.isinf(item) or math.isinf(item))
-        )]
-    else:
-        # Retourner les valeurs non-problématiques telles quelles
-        return data
 
-# Utilisation:
-#clean_data = clean_json_dict(donneur_data_dict)
-
-class Donneur_Data(BaseModel):
-    # Données démographiques
-    Genre: str = "Homme"
-    Age: int = 30
-    Niveau_etude: str = "Universitaire"
-    Situation_Matrimoniale: str = "Célibataire"
-    Religion: str = "chrétien (catholique)"
-    Profession: str = "Étudiant-Eleve"
-    Taille: float = 170.0
-    Poids: float = 70.0
-    Arrondissement_de_residence: str = "douala 1"
-    Quartier_residence: str = "Bonapriso"
-    Nationalite: str = "Camerounaise"
-    
-    # Données médicales générales
-    Taux_hemoglobine: float = 14.0
-    A_deja_donne: str = "Non"
-    Date_dernier_don: str = None
-    
-    # Nouvelles variables médicales
-    Anti_biotherapie: str = "non"
-    Taux_hemoglobine_bas: str = None
-    IST_recente: str = "non"
-    
-    # Variables spécifiques pour les femmes
-    DDR_recent: str = None
-    Allaitement: str = None
-    Accouchement_recent: str = None
-    Interruption_grossesse_recente: str = None
-    Enceinte: str = None
-    Autre_raison_indispo_femme: str = None
-    
-    # Conditions médicales générales
-    Antecedent_transfusion: str = "non"
-    Porteur_HIV_Hbs_Hcv: str = "non"
-    Opere: str = "non"
-    Drepanocytaire: str = "non"
-    Diabetique: str = "non"
-    Hypertendu: str = "non"
-    Asthmatique: str = "non"
-    Cardiaque: str = "non"
-    Tatoue: str = "non"
-    Scarifie: str = "non"
-    Autre_raison_ineligible: str = None
-
-
-def parse_contents(contents, filename, language="fr"):
-    """
-    Parse le contenu d'un fichier uploadé et retourne un DataFrame
-    
-    Args:
-        contents (str): Le contenu encodé en base64 du fichier
-        filename (str): Le nom du fichier
-        language (str): La langue actuelle ('fr' ou 'en')
-        
-    Returns:
-        pandas.DataFrame: Le DataFrame créé à partir du fichier ou None en cas d'erreur
-    """
-    translations = TRANSLATIONS[language]
-    
-    content_type, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
-    
-    try:
-        if 'csv' in filename.lower():
-            # Essayer différents encodages et délimiteurs
-            try:
-                df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-            except UnicodeDecodeError:
-                try:
-                    df = pd.read_csv(io.StringIO(decoded.decode('latin-1')))
-                except:
-                    df = pd.read_csv(io.StringIO(decoded.decode('utf-8', errors='replace')), delimiter=';')
-        elif 'xls' in filename.lower():
-            df = pd.read_excel(io.BytesIO(decoded))
-        else:
-            return None, translations.get("Format de fichier non supporté. Veuillez utiliser CSV ou Excel", 
-                                          "Unsupported file format. Please use CSV or Excel")
-        
-        # Vérifier que le DataFrame n'est pas vide
-        if df.empty:
-            return None, translations.get("Le fichier est vide", "The file is empty")
-            
-        return df, None
-        
-    except Exception as e:
-        return None, str(e)
-
-
+# Fonction utilitaire pour créer des icônes avec animations et effets
 def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color, light_theme, dark_theme, language="fr"):
     """
     Génère la page d'analyse prédictive avec des améliorations esthétiques significatives.
@@ -391,7 +254,302 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
     hemoglobin_slider_marks = {i: {'label': f'{i}', 'style': {'color': colors['text']}} for i in range(8, 21, 2)}
     
     # Ajouter un style CSS personnalisé pour les animations et les effets
-    
+    """
+    custom_css = html.Style('''
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-20px) rotate(10deg);
+                opacity: 0;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        .fade-in-scale {
+            animation: fadeInScale 0.5s ease-out forwards;
+        }
+        
+        .fade-in-delay {
+            animation: fadeIn 0.8s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+        
+        .icon-pulse {
+            animation: pulse 2s infinite ease-in-out;
+        }
+        
+        .icon-bounce {
+            animation: bounce 2s infinite ease-in-out;
+        }
+        
+        .icon-spin {
+            animation: spin 10s linear infinite;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(172, 67, 54, 0.4);
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(172, 67, 54, 0.6);
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        
+        .blood-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .blood-btn::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: radial-gradient(circle, rgba(231, 76, 60, 0.2) 0%, rgba(231, 76, 60, 0) 70%);
+            transform: scale(0);
+            transition: transform 0.5s;
+            z-index: -1;
+        }
+        
+        .blood-btn:hover::before {
+            transform: scale(1);
+        }
+        
+        .blood-drop {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(231, 76, 60, 0.7);
+            border-radius: 50% 50% 50% 0;
+            position: absolute;
+            transform: rotate(-45deg);
+            animation: floatUp 3s linear infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .flex-container {
+                flex-direction: column;
+            }
+            
+            .reasons-box, .recommendations-box {
+                margin-right: 0 !important;
+                margin-bottom: 20px;
+            }
+        }
+        
+        .radio-button-custom input[type='radio'] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+        
+        .radio-button-custom input[type='radio']:checked {
+            border: 5px solid #e74c3c;
+        }
+        
+        .slider-custom {
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        .slider-custom .rc-slider-track {
+            background-color: #e74c3c;
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        .slider-custom .rc-slider-handle {
+            border: solid 2px #e74c3c;
+            margin-top: -5px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+        }
+        
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip-content {
+            visibility: hidden;
+            width: 220px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            line-height: 1.5;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .tooltip-container:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+        
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(231, 76, 60, 0.15);
+            color: #e74c3c;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+            cursor: default;
+            transition: all 0.3s ease;
+        }
+        
+        .info-badge:hover {
+            background: rgba(231, 76, 60, 0.25);
+        }
+        
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%) rotate(30deg);
+            }
+            100% {
+                transform: translateX(100%) rotate(30deg);
+            }
+        }
+    ''')
+    """
     # Affichage du profil et des statistiques basiques
     bmi_preview = html.Div([
         html.Div([
@@ -481,67 +639,7 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
         'overflow': 'hidden',
         'pointerEvents': 'none'
     })
-    # Modifiez votre composant batch_prediction_component pour inclure les Stores manquants
-    batch_prediction_component = html.Div([
-        html.Div([
-            html.Div([
-                get_icon("mdi:file-upload-outline", 24, "white"),
-                html.H3(translations.get("Prédiction par lot", "Batch Prediction"), style=section_title_style)
-            ])
-        ], style=card_header_style),
-        
-        html.Div([
-            html.P(translations.get(
-                "Chargez un fichier Excel ou CSV contenant plusieurs profils pour obtenir des prédictions d'éligibilité en lot.",
-                "Upload an Excel or CSV file containing multiple profiles to get batch eligibility predictions."
-            ), style={'marginBottom': '20px', 'color': colors['text']}),
-            
-            dcc.Upload(
-                id='upload-batch-data',
-                children=html.Div([
-                    get_icon("mdi:file-upload", 20, colors['primary']),
-                    html.Span(translations.get(" Choisir un fichier", " Choose a file"), 
-                            style={'marginLeft': '10px', 'fontWeight': 'bold'})
-                ], style={
-                    'display': 'flex',
-                    'alignItems': 'center',
-                    'justifyContent': 'center',
-                    'width': '100%',
-                    'height': '60px',
-                    'lineHeight': '60px',
-                    'borderWidth': '2px',
-                    'borderStyle': 'dashed',
-                    'borderRadius': '10px',
-                    'textAlign': 'center',
-                    'transition': 'all 0.3s ease',
-                    'cursor': 'pointer',
-                    'backgroundColor': hex_to_rgba(colors['primary'], 0.05),
-                    'borderColor': hex_to_rgba(colors['primary'], 0.3),
-                    'color': colors['primary']
-                }),
-                style={'margin': '20px 0'},
-                multiple=False
-            ),
-            
-            # Conteneur de chargement pour les prédictions par lot
-            dcc.Loading(
-                id="loading-batch-prediction",
-                type="circle",
-                color=colors['primary'],
-                children=[
-                    html.Div(id='batch-prediction-results')
-                ]
-            ),
-            
-            # Ajout des composants Store manquants
-            dcc.Store(id='batch-prediction-data'),
-            dcc.Store(id='prediction-result-complete'),
-            
-            # Ajout des composants Download pour les téléchargements
-            dcc.Download(id='download-dataframe-csv'),
-            dcc.Download(id='download-dataframe-excel')
-        ], style=card_body_style)
-    ], style={**card_style, 'marginTop': '30px'}, className="mb-4 hover-scale fade-in")
+    
     
     
     # Interface utilisateur principale
@@ -1778,16 +1876,7 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                     
                     # Conteneur du statut avec animation et bel aspect visuel
                     html.Div(
-                        id="prediction-status-container",
-                        #className="fade-in-scale",
-                        #style={
-                            #'padding':'10px',
-                            #'marginTop': '20px',  # Ajoute une marge en haut plutôt qu'un padding excessif
-                            #'marginBottom': '20px',
-                            #'position': 'relative',
-                            #'zIndex': '1',
-                            #'transition': 'all 0.5s ease'
-                        #}
+                        id="prediction-status-container"
                     ),
                     
                     # Conteneur en flex pour afficher côte à côte les jauges avec animation
@@ -1843,13 +1932,10 @@ def page_quatre(theme, plot_font_color, plot_bg, plot_paper_bg, plot_grid_color,
                 'transition': 'transform 0.5s ease, box-shadow 0.5s ease'
             }, id="results-card", className="mt-4 shadow-lg hover-scale")
         ], className="mt-4"),
-        batch_prediction_component,
         
         # Stockage de l'état de la prédiction
         dcc.Store(id="prediction-result"),
         dcc.Store(id="show-details", data=False)
-        
-        # Effet des bulles de sang décoratifs
         #blood_decorations
     ])
     
@@ -2353,657 +2439,3 @@ def toggle_details(n_clicks, show_details, language):
         ], True
     
     
-@app.callback(
-    Output('batch-prediction-results', 'children'),
-    Output('batch-prediction-data', 'data'),
-    Input('upload-batch-data', 'contents'),
-    State('upload-batch-data', 'filename'),
-    State('language-store', 'data'),
-    State('theme-store', 'data'),
-    prevent_initial_call=True
-)
-def process_batch_file(contents, filename, language, theme):
-    """
-    Traite le fichier uploadé et prépare les données pour les prédictions
-    
-    Args:
-        contents (str): Le contenu du fichier encodé en base64
-        filename (str): Le nom du fichier
-        language (str): La langue actuelle ('fr' ou 'en')
-        theme (str): Le thème actuel ('light' ou 'dark')
-        
-    Returns:
-        tuple: (Contenu à afficher, Données de prédiction à stocker)
-    """
-    if contents is None:
-        raise PreventUpdate
-    
-    translations = TRANSLATIONS[language]
-    is_dark = theme == 'dark'
-    
-    # Couleurs selon le thème
-    if is_dark:
-        text_color = 'white'
-        bg_color = '#0A3160'
-    else:
-        text_color = '#333'
-        bg_color = 'white'
-    
-    try:
-        # Décoder le contenu du fichier
-        content_type, content_string = contents.split(',')
-        decoded = base64.b64decode(content_string)
-        
-        # Lecture du fichier dans un DataFrame
-        try:
-            if 'csv' in filename.lower():
-                # Essayer différents encodages et délimiteurs
-                try:
-                    df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-                except UnicodeDecodeError:
-                    try:
-                        df = pd.read_csv(io.StringIO(decoded.decode('latin-1')))
-                    except:
-                        df = pd.read_csv(io.StringIO(decoded.decode('utf-8', errors='replace')), delimiter=';')
-            elif 'xls' in filename.lower():
-                df = pd.read_excel(io.BytesIO(decoded))
-            else:
-                return html.Div([
-                    html.H5(translations.get("Format de fichier non supporté", "Unsupported file format"), 
-                           style={'color': '#e74c3c', 'marginTop': '20px'}),
-                    html.P(translations.get("Veuillez utiliser un fichier CSV ou Excel (xlsx/xls)", 
-                                           "Please use a CSV or Excel file (xlsx/xls)"), 
-                          style={'color': text_color})
-                ]), None
-        except Exception as e:
-            return html.Div([
-                html.H5(translations.get("Erreur lors de la lecture du fichier", "Error reading file"), 
-                       style={'color': '#e74c3c', 'marginTop': '20px'}),
-                html.P(str(e), style={'color': text_color})
-            ]), None
-        
-        # Vérifier si le DataFrame est vide
-        if df.empty:
-            return html.Div([
-                html.H5(translations.get("Fichier vide", "Empty file"), 
-                       style={'color': '#e74c3c', 'marginTop': '20px'}),
-                html.P(translations.get("Le fichier ne contient aucune donnée", 
-                                       "The file doesn't contain any data"), 
-                      style={'color': text_color})
-            ]), None
-        
-        # Limitation du nombre de lignes pour des raisons de performance
-        max_rows = 100
-        if len(df) > max_rows:
-            warning_message = html.Div([
-                html.P(translations.get(
-                    f"Attention: Le fichier contient {len(df)} lignes. Seules les {max_rows} premières seront traitées pour des raisons de performance.",
-                    f"Warning: The file contains {len(df)} rows. Only the first {max_rows} will be processed for performance reasons."
-                ), style={'color': '#f39c12', 'marginBottom': '15px', 'fontWeight': 'bold'})
-            ])
-            df = df.head(max_rows)
-        else:
-            warning_message = html.Div()
-        
-        # Stocker le dataframe original pour les prédictions futures
-        df_dict = df.to_dict('records')
-        
-        # Créer le conteneur initial avec barre de progression
-        initial_container = html.Div([
-            warning_message,
-            html.H5(translations.get(
-                f"Préparation de {len(df)} lignes pour les prédictions...",
-                f"Preparing {len(df)} rows for predictions..."
-            ), style={'marginTop': '20px', 'marginBottom': '15px'}),
-            html.Div([
-                html.P(translations.get("Traitement en cours...", "Processing..."), 
-                      style={'marginBottom': '10px'}),
-                dbc.Progress(
-                    value=50, 
-                    striped=True,
-                    animated=True,
-                    style={'height': '10px', 'marginBottom': '20px'}
-                )
-            ])
-        ])
-        
-        return initial_container, json.dumps({'data': df_dict, 'filename': filename})
-        
-    except Exception as e:
-        return html.Div([
-            html.H5(translations.get("Erreur inattendue", "Unexpected error"), 
-                   style={'color': '#e74c3c', 'marginTop': '20px'}),
-            html.P(str(e), style={'color': text_color})
-        ]), None
-        
-        
-@app.callback(
-    [Output('batch-prediction-results', 'children', allow_duplicate=True),
-     Output('prediction-result-complete', 'data')],
-    Input('batch-prediction-data', 'data'),
-    State('language-store', 'data'),
-    State('theme-store', 'data'),
-    prevent_initial_call=True
-)
-def process_predictions(data_json, language, theme):
-    """
-    Traite les données avec les étapes de prétraitement spécifiques puis prepare_data_for_prediction
-    et fait des prédictions via l'API
-    
-    Args:
-        data_json (str): Les données JSON du dataframe
-        language (str): La langue actuelle ('fr' ou 'en')
-        theme (str): Le thème actuel ('light' ou 'dark')
-        
-    Returns:
-        dash_html_components.Div: Le contenu à afficher avec les résultats
-    """
-    if data_json is None:
-        raise PreventUpdate
-    
-    translations = TRANSLATIONS[language]
-    is_dark = theme == 'dark'
-    
-    # Couleurs selon le thème
-    if is_dark:
-        text_color = 'white'
-        bg_color = '#0A3160'
-        table_header_bg = '#1A237E'
-        table_odd_bg = 'rgba(26, 35, 126, 0.2)'
-        table_even_bg = 'rgba(26, 35, 126, 0.1)'
-        border_color = 'rgba(255,255,255,0.1)'
-    else:
-        text_color = '#333'
-        bg_color = 'white'
-        table_header_bg = '#e74c3c'
-        table_odd_bg = 'rgba(231, 76, 60, 0.1)'
-        table_even_bg = 'rgba(231, 76, 60, 0.05)'
-        border_color = '#e2e8f0'
-    
-    try:
-        # Récupérer les données
-        data_dict = json.loads(data_json)
-        df_records = data_dict['data']
-        filename = data_dict['filename']
-        
-        # Créer un DataFrame
-        df_records = pd.DataFrame(df_records)
-        
-        
-        """
-        if 'ÉLIGIBILITÉ AU DON.' in data.columns:
-            colonnes_de_base.append('ÉLIGIBILITÉ AU DON.')
-        
-        # Filtrer les colonnes existantes
-        colonnes_existantes = [col for col in colonnes_de_base if col in data.columns]
-        colonnes_raisons_indispo = [col for col in raisons_indispo if col in data.columns]
-        colonnes_raisons_non_elig = [col for col in raisons_non_elig_totale if col in data.columns]
-        
-        # Combiner toutes les colonnes à conserver
-        colonnes_a_conserver = colonnes_existantes + colonnes_raisons_indispo + colonnes_raisons_non_elig + ['Autre_raison_indispo_femme', 'Autre_raison_ineligible']
-        
-        # Filtrer le DataFrame
-        df_filtre = data[colonnes_a_conserver].copy()
-        
-        # Étape 6: Nettoyer la colonne du taux d'hémoglobine
-        def nettoyer_hemoglobine(valeur):
-            if pd.notna(valeur) and isinstance(valeur, str):
-                valeur = valeur.replace(',', '.')
-                valeur = valeur.replace('g/dl', '')
-                valeur = valeur.strip()
-                return valeur
-            return valeur
-        
-        # Appliquer la fonction si la colonne existe
-        if 'Taux d\'hémoglobine' in df_filtre.columns:
-            df_filtre['Taux d\'hémoglobine'] = df_filtre['Taux d\'hémoglobine'].apply(nettoyer_hemoglobine)
-            df_filtre['Taux d\'hémoglobine'] = pd.to_numeric(df_filtre['Taux d\'hémoglobine'], errors='coerce')
-        
-        # Étape 7: Renommer les colonnes en extrayant le texte entre crochets
-        new_columns = {}
-        for col in df_filtre.columns:
-            if '[' in col and ']' in col:
-                new_name = col[col.find('[')+1:col.find(']')].strip()
-                new_columns[col] = new_name
-        
-        # Renommer les colonnes
-        df = df_filtre.rename(columns=new_columns)
-        """
-        
-        # Préparer les résultats
-        results = []
-        prediction_counts = {
-            'Eligible': 0,
-            'Temporairement Non-eligible': 0,
-            'Définitivement non-eligible': 0,
-            'Erreur': 0
-        }
-        
-        # Traiter chaque ligne pour faire des prédictions
-        for index, row in df_records.iterrows():
-            try:
-                
-                # Créer un objet Donneur_Data avec les données nécessaires
-                # Extraction des données pour chaque champ requis, avec des valeurs par défaut
-                genre = row["Genre"]
-                age = row["Age"]
-                niveau_etude = row["Niveau_etude"]
-                situation_matrimoniale = row["Situation_Matrimoniale"]
-                religion = row["Religion"]
-                profession = row["Profession"]
-                taille = row["Taille"]
-                poids = row["Poids"]
-                arrondissement = row["Arrondissement_de_residence"]
-                quartier = row["Quartier_residence"]
-                nationalite = row["Nationalite"]
-                taux_hemoglobine = row["Taux_hemoglobine"]
-                a_deja_donne = row["A_deja_donne"]
-                date_dernier_don = row["Date_dernier_don"]
-                anti_biotherapie = row["Anti_biotherapie"]
-                taux_hemoglobine_bas = row["Taux_hemoglobine_bas"]
-                ist_recente = row["IST_recente"]
-                ddr_recent = row["DDR_recent"] if genre == "Femme" else None
-                allaitement = row["Allaitement"] if genre == "Femme" else None
-                accouchement_recent = row["Accouchement_recent"] if genre == "Femme" else None
-                interruption_grossesse = row["Interruption_grossesse_recente"] if genre == "Femme" else None
-                enceinte = row["Enceinte"] if genre == "Femme" else None
-                autre_raison_indispo_femme = row["Autre_raison_indispo_femme"] if genre == "Femme" else None
-                antecedent_transfusion = row["Antecedent_transfusion"]
-                porteur_hiv = row["Porteur_HIV_Hbs_Hcv"]
-                opere_recemment = row["Opere"]
-                drepanocytaire = row["Drepanocytaire"]
-                diabetique = row["Diabetique"]
-                hypertendu = row["Hypertendu"]
-                asthmatique = row["Asthmatique"]
-                cardiaque = row["Cardiaque"]
-                tatoue = row["Tatoue"]
-                scarifie = row["Scarifie"]
-                autre_raison_ineligible = row["Autre_raison_ineligible"]
-                
-                # Créer le dictionnaire avec les données du donneur
-                donneur_data_dict = {
-                    "Genre": genre,
-                    "Age": age,
-                    "Niveau_etude": niveau_etude,
-                    "Situation_Matrimoniale": situation_matrimoniale,
-                    "Religion": religion,
-                    "Profession": profession,
-                    "Taille": float(taille),
-                    "Poids": float(poids),
-                    "Arrondissement_de_residence": arrondissement,
-                    "Quartier_residence": quartier,
-                    "Nationalite": nationalite,
-                    "Taux_hemoglobine": float(taux_hemoglobine),
-                    "A_deja_donne": a_deja_donne,
-                    "Date_dernier_don": date_dernier_don,
-                    "Anti_biotherapie": anti_biotherapie,
-                    "Taux_hemoglobine_bas": taux_hemoglobine_bas,  # Déjà calculé dans notre génération
-                    "IST_recente": ist_recente,
-                    "DDR_recent": ddr_recent,  # Déjà gérée selon le genre dans notre génération
-                    "Allaitement": allaitement,
-                    "Accouchement_recent": accouchement_recent,
-                    "Interruption_grossesse_recente": interruption_grossesse,
-                    "Enceinte": enceinte,
-                    "Autre_raison_indispo_femme": autre_raison_indispo_femme,
-                    "Antecedent_transfusion": antecedent_transfusion,
-                    "Porteur_HIV_Hbs_Hcv": porteur_hiv,
-                    "Opere": opere_recemment,
-                    "Drepanocytaire": drepanocytaire,
-                    "Diabetique": diabetique, 
-                    "Hypertendu": hypertendu,
-                    "Asthmatique": asthmatique,
-                    "Cardiaque": cardiaque,
-                    "Tatoue": tatoue,
-                    "Scarifie": scarifie,
-                    "Autre_raison_ineligible": autre_raison_ineligible
-                }
-                
-                
-                # Créer l'objet Donneur_Data
-                clean_data = clean_json_dict(donneur_data_dict)
-                #donneur_data = donneur_data.dict()
-                
-                #donneur_data = clean_json_dict(donneur_data.dict())
-                #donneur_data,_ = prepare_data_for_prediction(donneur_data)
-                
-                # Faire la prédiction via l'API
-                #http://127.0.0.1:8000/predict
-                #https://api-blood-donnation.onrender.com/predict
-                response = requests.post(
-                    "https://api-blood-donnation.onrender.com/predict", 
-                    json=clean_data
-                    #timeout=5
-                )
-                
-                if response.status_code == 200:
-                    # Traiter la réponse de l'API
-                    api_response = response.json()
-                    
-                    # Récupérer le statut d'éligibilité et les probabilités
-                    eligibility_status = api_response.get("statut", "Inconnu")
-                    probabilities = api_response.get("probabilites", {})
-                    probability_value = probabilities.get(eligibility_status, 0.0)
-                    
-                    # Récupérer les raisons et recommandations
-                    reasons = api_response.get("raisons", [])
-                    recommendations = api_response.get("recommandations", [])
-                    
-                    # Mettre à jour les compteurs
-                    if eligibility_status in prediction_counts:
-                        prediction_counts[eligibility_status] += 1
-                    
-                    # Ajouter les résultats
-                    row_result = row.to_dict()
-                    row_result['prediction'] = eligibility_status
-                    row_result['probabilite'] = f"{probability_value:.2f}"
-                    row_result['raisons'] = ', '.join(reasons) if reasons else 'Aucune raison spécifiée'
-                    row_result['recommandations'] = ', '.join(recommendations) if recommendations else 'Aucune recommandation'
-                    
-                else:
-                    # Erreur de l'API
-                    row_result = row.to_dict()
-                    row_result['prediction'] = f"Erreur API: {response.status_code}"
-                    row_result['probabilite'] = "0.00"
-                    row_result['raisons'] = 'Erreur de communication avec l\'API'
-                    row_result['recommandations'] = ''
-                    prediction_counts['Erreur'] += 1
-                    
-            except Exception as e:
-                # En cas d'erreur pour cette ligne
-                row_result = row.to_dict()
-                row_result['prediction'] = f"Erreur: {str(e)}"
-                row_result['probabilite'] = "0.00"
-                row_result['raisons'] = 'Erreur de traitement'
-                row_result['recommandations'] = ''
-                prediction_counts['Erreur'] += 1
-                
-            results.append(row_result)
-        
-        # Créer un DataFrame des résultats
-        result_df = pd.DataFrame(results)
-        
-        # Identifier les colonnes à afficher dans le tableau
-        default_columns = ['Genre', 'Age', 'Taux d\'hémoglobine', 'prediction', 'probabilite', 'raisons']
-        display_columns = [col for col in default_columns if col in result_df.columns]
-        
-        # S'assurer que les colonnes de prédiction sont présentes
-        for col in ['prediction', 'probabilite', 'raisons']:
-            if col not in display_columns and col in result_df.columns:
-                display_columns.append(col)
-        
-        # Limiter les colonnes pour l'affichage
-        display_df = result_df[display_columns]
-        
-        # Traduire les noms de colonnes
-        column_translations = {
-            'Genre': translations.get('Genre', 'Gender'),
-            'Age': translations.get('Âge', 'Age'),
-            'Taux d\'hémoglobine': translations.get('Taux d\'hémoglobine (g/dL)', 'Hemoglobin Level (g/dL)'),
-            'prediction': translations.get('Prédiction', 'Prediction'),
-            'probabilite': translations.get('Probabilité', 'Probability'),
-            'raisons': translations.get('Raisons', 'Reasons'),
-            'recommandations': translations.get('Recommandations', 'Recommendations')
-        }
-        
-        display_df = display_df.rename(columns={col: column_translations.get(col, col) for col in display_df.columns})
-        
-        # Supprimer 'Erreur' du comptage s'il n'y a pas d'erreurs
-        if prediction_counts['Erreur'] == 0:
-            del prediction_counts['Erreur']
-        
-        # Créer un graphique de répartition des prédictions
-        fig = px.pie(
-            names=list(prediction_counts.keys()),
-            values=list(prediction_counts.values()),
-            title=translations.get('Répartition des prédictions', 'Prediction distribution'),
-            color_discrete_sequence=['#2ecc71', '#f39c12', '#e74c3c', '#95a5a6'],
-            hole=0.4
-        )
-        
-        fig.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font={'color': text_color},
-            margin=dict(t=30, b=10, l=10, r=10)
-        )
-        
-        # Créer le tableau des résultats
-        table = dash_table.DataTable(
-            id='prediction-results-table',
-            columns=[{'name': col, 'id': col} for col in display_df.columns],
-            data=display_df.to_dict('records'),
-            style_table={
-                'overflowX': 'auto',
-                'backgroundColor': bg_color,
-                'border': f'1px solid {border_color}'
-            },
-            style_header={
-                'backgroundColor': table_header_bg,
-                'color': 'white',
-                'fontWeight': 'bold',
-                'textAlign': 'left',
-                'padding': '12px',
-                'border': f'1px solid {border_color}'
-            },
-            style_cell={
-                'backgroundColor': bg_color,
-                'color': text_color,
-                'textAlign': 'left',
-                'padding': '8px',
-                'fontFamily': 'Arial, sans-serif',
-                'minWidth': '100px',
-                'width': '150px',
-                'maxWidth': '300px',
-                'overflow': 'hidden',
-                'textOverflow': 'ellipsis'
-            },
-            style_data_conditional=[
-                {
-                    'if': {'row_index': 'odd'},
-                    'backgroundColor': table_odd_bg
-                },
-                {
-                    'if': {'column_id': column_translations.get('prediction', 'prediction')},
-                    'fontWeight': 'bold'
-                },
-                {
-                    'if': {
-                        'filter_query': f'{{{column_translations.get("prediction", "prediction")}}} = "{translations.get("Eligible", "Eligible")}"'
-                    },
-                    'backgroundColor': 'rgba(46, 204, 113, 0.3)'
-                },
-                {
-                    'if': {
-                        'filter_query': f'{{{column_translations.get("prediction", "prediction")}}} = "{translations.get("Temporairement Non-eligible", "Temporarily Ineligible")}"'
-                    },
-                    'backgroundColor': 'rgba(243, 156, 18, 0.3)'
-                },
-                {
-                    'if': {
-                        'filter_query': f'{{{column_translations.get("prediction", "prediction")}}} = "{translations.get("Définitivement non-eligible", "Permanently Ineligible")}"'
-                    },
-                    'backgroundColor': 'rgba(231, 76, 60, 0.3)'
-                },
-                {
-                    'if': {
-                        'filter_query': f'{{{column_translations.get("prediction", "prediction")}}} contains "Erreur"'
-                    },
-                    'backgroundColor': 'rgba(149, 165, 166, 0.3)'
-                }
-            ],
-            page_size=10,
-            page_current=0,
-            sort_action='native',
-            filter_action='native',
-            export_format='csv',
-            export_headers='display'
-        )
-        
-        # Créer des boutons pour télécharger les résultats
-        download_buttons = html.Div([
-        html.Button([
-            get_icon("mdi:file-download", 16, "white"),
-            translations.get(" Télécharger les résultats (CSV)", " Download results (CSV)")
-        ], id='download-csv-button', n_clicks=0, style={
-            'backgroundColor': '#3498db',
-            'color': 'white',
-            'border': 'none',
-            'padding': '8px 16px',
-            'borderRadius': '5px',
-            'cursor': 'pointer',
-            'display': 'flex',
-            'alignItems': 'center',
-            'justifyContent': 'center',
-            'gap': '8px',
-            'marginRight': '10px',
-            'fontWeight': 'bold'
-        }),
-        html.Button([
-            get_icon("mdi:file-excel", 16, "white"),
-            translations.get(" Télécharger les résultats (Excel)", " Download results (Excel)")
-        ], id='download-excel-button', n_clicks=0, style={
-            'backgroundColor': '#27ae60',
-            'color': 'white',
-            'border': 'none',
-            'padding': '8px 16px',
-            'borderRadius': '5px',
-            'cursor': 'pointer',
-            'display': 'flex',
-            'alignItems': 'center',
-            'justifyContent': 'center',
-            'gap': '8px',
-            'fontWeight': 'bold'
-        }),
-        # Supprimez cette ligne: dcc.Store(id='prediction-result-complete', data=result_df.to_json(date_format='iso', orient='split'))
-    ], style={'display': 'flex', 'marginTop': '20px', 'marginBottom': '20px'})
-        # Création du conteneur final avec tous les éléments
-        final_container = html.Div([
-            html.H5(translations.get(
-                f"Résultats de prédiction pour {filename}",
-                f"Prediction results for {filename}"
-            ), style={'marginTop': '20px', 'marginBottom': '20px', 'fontWeight': 'bold', 'color': text_color}),
-            
-            # Statistiques résumées
-            html.Div([
-                html.Div([
-                    html.Div([
-                        get_icon("mdi:file-document-check", 24, "#2ecc71"),
-                        html.Span(translations.get("Éligible", "Eligible"), style={'marginLeft': '8px'})
-                    ], style={'display': 'flex', 'alignItems': 'center', 'color': '#2ecc71', 'fontWeight': 'bold'}),
-                    html.H4(prediction_counts.get('Eligible', 0), style={'margin': '10px 0', 'color': '#2ecc71'})
-                ], style={
-                    'backgroundColor': 'rgba(46, 204, 113, 0.1)',
-                    'padding': '15px',
-                    'borderRadius': '10px',
-                    'textAlign': 'center',
-                    'flex': '1'
-                }),
-                
-                html.Div([
-                    html.Div([
-                        get_icon("mdi:clock-alert", 24, "#f39c12"),
-                        html.Span(translations.get("Temporairement Non-éligible", "Temporarily Ineligible"), style={'marginLeft': '8px'})
-                    ], style={'display': 'flex', 'alignItems': 'center', 'color': '#f39c12', 'fontWeight': 'bold'}),
-                    html.H4(prediction_counts.get('Temporairement Non-eligible', 0), style={'margin': '10px 0', 'color': '#f39c12'})
-                ], style={
-                    'backgroundColor': 'rgba(243, 156, 18, 0.1)',
-                    'padding': '15px',
-                    'borderRadius': '10px',
-                    'textAlign': 'center',
-                    'flex': '1',
-                    'margin': '0 15px'
-                }),
-                
-                html.Div([
-                    html.Div([
-                        get_icon("mdi:block-helper", 24, "#e74c3c"),
-                        html.Span(translations.get("Définitivement Non-éligible", "Permanently Ineligible"), style={'marginLeft': '8px'})
-                    ], style={'display': 'flex', 'alignItems': 'center', 'color': '#e74c3c', 'fontWeight': 'bold'}),
-                    html.H4(prediction_counts.get('Définitivement non-eligible', 0), style={'margin': '10px 0', 'color': '#e74c3c'})
-                ], style={
-                    'backgroundColor': 'rgba(231, 76, 60, 0.1)',
-                    'padding': '15px',
-                    'borderRadius': '10px',
-                    'textAlign': 'center',
-                    'flex': '1'
-                })
-            ], style={'display': 'flex', 'marginBottom': '20px', 'flexWrap': 'wrap', 'gap': '10px'}),
-            
-            # Graphique de répartition
-            dcc.Graph(figure=fig, style={'height': '300px'}),
-            
-            # Boutons de téléchargement
-            download_buttons,
-            
-            # Tableau des résultats avec pagination
-            html.Div([
-                html.H6(translations.get("Détail des prédictions", "Prediction details"), 
-                       style={'marginBottom': '10px', 'color': text_color}),
-                table
-            ])
-        ])
-        
-        return final_container, result_df.to_json(date_format='iso', orient='split')
-        
-    except Exception as e:
-        return html.Div([
-            html.H5(translations.get("Erreur lors du traitement des prédictions", "Error processing predictions"), 
-                   style={'color': '#e74c3c', 'marginTop': '20px'}),
-            html.P(str(e), style={'color': text_color})
-        ]), None
-        
-
-
-@app.callback(
-    Output('download-dataframe-csv', 'data'),
-    Input('download-csv-button', 'n_clicks'),
-    State('batch-prediction-data', 'data'),
-    State('prediction-result-complete', 'data'),
-    prevent_initial_call=True
-)
-def download_csv(n_clicks, data_json, result_json):
-    """
-    Télécharge les résultats au format CSV
-    """
-    if n_clicks == 0 or result_json is None:
-        raise PreventUpdate
-        
-    try:
-        # Utiliser directement les résultats complets
-        result_df = pd.read_json(result_json, orient='split')
-        data_dict = json.loads(data_json)
-        filename = data_dict['filename'].split('.')[0]
-        
-        # Renvoyer le dataframe pour téléchargement
-        return dcc.send_data_frame(result_df.to_csv, filename=f"{filename}_predictions.csv", index=False)
-        
-    except Exception as e:
-        print(f"Erreur lors du téléchargement CSV: {e}")
-        raise PreventUpdate
-
-@app.callback(
-    Output('download-dataframe-excel', 'data'),
-    Input('download-excel-button', 'n_clicks'),
-    State('batch-prediction-data', 'data'),
-    State('prediction-result-complete', 'data'),
-    prevent_initial_call=True
-)
-def download_excel(n_clicks, data_json, result_json):
-    """
-    Télécharge les résultats au format Excel
-    """
-    if n_clicks == 0 or result_json is None:
-        raise PreventUpdate
-        
-    try:
-        # Utiliser directement les résultats complets
-        result_df = pd.read_json(result_json, orient='split')
-        data_dict = json.loads(data_json)
-        filename = data_dict['filename'].split('.')[0]
-        
-        # Renvoyer le dataframe pour téléchargement
-        return dcc.send_data_frame(result_df.to_excel, filename=f"{filename}_predictions.xlsx", index=False)
-        
-    except Exception as e:
-        print(f"Erreur lors du téléchargement Excel: {e}")
-        raise PreventUpdate
