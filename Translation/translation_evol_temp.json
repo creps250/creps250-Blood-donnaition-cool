@@ -1,0 +1,118 @@
+{
+    "fr": {
+        "Caracteristiques demographiques": "Caracteristiques demographiques",
+        "Religion": "Religion",
+        "Situation Matrimoniale": "Situation Matrimoniale",
+        "Age": "Age",
+        "Repartition des Religions des candidats aux don": "Repartition des Religions des candidats aux don",
+        "Repartition de la situation matrimonial des candidats aux dons": "Repartition de la situation matrimonial des candidats aux dons",
+        "Sexe et Nationalité": "Sexe et Nationalité",
+        "Effacer filtre": "Effacer filtre",
+        "Arrondissement de don": "Arrondissement de don",
+        "Cartographie des zones enquêtes": "Cartographie des zones enquêtes",
+        "variable": "variable",
+        "modalite1": "modalite1",
+        "modalite2": "modalite2",
+        "Proportion des candidats aux dons": "Proportion des candidats aux dons",
+        "donnateurs": "donnateurs",
+        "Total enquêtes": "Total enquêtes",
+        "Nombre d'arrondissements": "Nombre d'arrondissements",
+        "Total quartiers": "Total quartiers",
+        "Niveau d'etude": "Niveau d'etude",
+        "Genre": "Genre",
+        "Situation Matrimoniale (SM)": "Situation Matrimoniale (SM)",
+        "A-t-il (elle) déjà donné le sang": "A-t-il (elle) déjà donné le sang",
+        "ÉLIGIBILITÉ AU DON.": "ÉLIGIBILITÉ AU DON.",
+        "Taux de dons (%)": "Taux de dons (%)",
+        "Meilleurs taux de progression de don": "Meilleurs taux de progression de don",
+        "realise en": "réalisé en",
+        "Évolution Mensuel des dons": "Évolution Mensuelle des dons",
+        "Remove Filter": "Effacer Filtre",
+        "Modèles de comportement et éligibilité des donneurs": "Modèles de comportement et éligibilité des donneurs",
+        "Calendrier": "Calendrier",
+        "Modèles de comportement": "Modèles de comportement",
+        "Repartition du": "Répartition du",
+        "des donneurs de sang": "des donneurs de sang",
+        "Répartition du nombre de dons au fil des mois par": "Répartition du nombre de dons au fil des mois par",
+        "Évolution des dons au fil des années": "Évolution des dons au fil des années",
+        "Évolution mensuelle des dons de sang": "Évolution mensuelle des dons de sang",
+        "Distribution des dons par année et par genre": "Distribution des dons par année et par genre",
+        "Analyse des donneurs de sang: Éligibilité et comportements": "Analyse des donneurs de sang: Éligibilité et comportements",
+        "Calendrier des remplissages de fiches": "Calendrier des remplissages de fiches",
+        "Disponibilité des Donneurs par Mois et Groupe d'Âge": "Disponibilité des Donneurs par Mois et Groupe d'Âge",
+
+
+        "Aide": "Aide",
+        "Fermer": "Fermer",
+        "Comprendre ce graphique": "Comprendre ce graphique",
+
+
+        "taux_dons_description": "Ce graphique présente le taux global de dons de sang. Il s'agit d'un pourcentage représentant la proportion de personnes ayant effectué un don parmi l'ensemble des candidats potentiels. Ce taux est un indicateur clé pour évaluer l'efficacité des campagnes de collecte et identifier les tendances générales en matière de don de sang.",
+
+        "taux_progression_description": "Ce graphique montre le meilleur taux de progression des dons, exprimé en pourcentage, avec le mois correspondant. Il indique la plus forte augmentation du nombre de dons observée sur une période donnée. Cette information est précieuse pour identifier les périodes de l'année où les campagnes de don sont les plus efficaces et comprendre les facteurs saisonniers qui influencent la participation des donneurs.",
+
+        "evol_mensuelle_description": "Ce graphique à barres illustre l'évolution mensuelle du nombre de dons de sang. Chaque barre représente le nombre total de dons pour un mois spécifique. Cette visualisation permet d'identifier les tendances saisonnières dans les comportements de don et de repérer les mois où l'activité de don est particulièrement forte ou faible. Ces informations sont essentielles pour planifier efficacement les futures campagnes de collecte.",
+
+        "caract_demo_description": "Ce graphique en secteurs montre la répartition des caractéristiques démographiques des donneurs de sang. Il présente la distribution selon différentes variables comme le genre, l'âge, la situation matrimoniale, la religion, etc. Cette visualisation aide à comprendre le profil type des donneurs et à identifier les groupes sous-représentés qui pourraient être ciblés par des campagnes spécifiques.",
+
+        "calendar_heatmap_description": "Ce calendrier heatmap visualise les activités de don de sang au fil du temps. L'intensité des couleurs représente le nombre de dons pour chaque jour, permettant d'identifier facilement les périodes de forte ou faible activité. Cette visualisation est utile pour détecter les tendances saisonnières, les effets des jours fériés, ou l'impact des campagnes de sensibilisation spécifiques sur les comportements de don."
+    },
+    "en": {
+        "Caracteristiques demographiques": "Demographic Characteristics",
+        "Religion": "Religion",
+        "Situation Matrimoniale": "Marital Status",
+        "Age": "Age",
+        "Repartition des Religions des candidats aux don": "Distribution of Religions Among Donation Candidates",
+        "Repartition de la situation matrimonial des candidats aux dons": "Distribution of Marital Status Among Donation Candidates",
+        "Sexe et Nationalité": "Gender and Nationality",
+        "Effacer filtre": "Clear Filter",
+        "Arrondissement de don": "Donation District",
+        "Cartographie des zones enquêtes": "Survey Zone Mapping",
+        "variable": "variable",
+        "modalite1": "value1",
+        "modalite2": "value2",
+        "Proportion des candidats aux dons": "Proportion of Donation Candidates",
+        "donnateurs": "donors",
+        "Total enquêtes": "Total Surveys",
+        "Nombre d'arrondissements": "Number of Districts",
+        "Total quartiers": "Total Neighborhoods",
+        "Niveau d'etude": "Education Level",
+        "Genre": "Gender",
+        "Situation Matrimoniale (SM)": "Marital Status (MS)",
+        "A-t-il (elle) déjà donné le sang": "Has previously donated blood",
+        "ÉLIGIBILITÉ AU DON.": "DONATION ELIGIBILITY.",
+        "Taux de dons (%)": "Donation Rate (%)",
+        "Meilleurs taux de progression de don": "Best donation growth rate",
+        "realise en": "achieved in",
+        "Évolution Mensuel des dons": "Monthly Evolution of Donations",
+        "Remove Filter": "Remove Filter",
+        "Modèles de comportement et éligibilité des donneurs": "Donor Behavior Models and Eligibility",
+        "Calendrier": "Calendar",
+        "Modèles de comportement": "Behavior Models",
+        "Repartition du": "Distribution of",
+        "des donneurs de sang": "of blood donors",
+        "Répartition du nombre de dons au fil des mois par": "Distribution of donations over months by",
+        "Évolution des dons au fil des années": "Evolution of Blood Donations Over the Years",
+        "Évolution mensuelle des dons de sang": "Monthly Evolution of Blood Donations",
+        "Distribution des dons par année et par genre": "Distribution of Donations by Year and Gender",
+        "Analyse des donneurs de sang: Éligibilité et comportements": "Blood Donor Analysis: Eligibility and Behaviors",
+        "Calendrier des remplissages de fiches": "Calendar of Form Filling",
+        "Disponibilité des Donneurs par Mois et Groupe d'Âge": "Availability of Donors by Month and Age Group",
+
+
+        "Aide": "Help",
+        "Fermer": "Close",
+        "Comprendre ce graphique": "Understanding this chart",
+
+
+        "taux_dons_description": "This chart presents the overall blood donation rate. It is a percentage representing the proportion of people who have made a donation among all potential candidates. This rate is a key indicator for evaluating the effectiveness of collection campaigns and identifying general trends in blood donation.",
+
+        "taux_progression_description": "This chart shows the best donation progression rate, expressed as a percentage, along with the corresponding month. It indicates the strongest increase in the number of donations observed over a given period. This information is valuable for identifying times of the year when donation campaigns are most effective and understanding seasonal factors that influence donor participation.",
+
+        "evol_mensuelle_description": "This bar chart illustrates the monthly evolution of blood donations. Each bar represents the total number of donations for a specific month. This visualization helps identify seasonal trends in donation behaviors and spot months where donation activity is particularly strong or weak. This information is essential for effectively planning future collection campaigns.",
+
+        "caract_demo_description": "This pie chart shows the distribution of demographic characteristics of blood donors. It presents the distribution according to different variables such as gender, age, marital status, religion, etc. This visualization helps understand the typical profile of donors and identify underrepresented groups that could be targeted by specific campaigns.",
+
+        "calendar_heatmap_description": "This calendar heatmap visualizes blood donation activities over time. The color intensity represents the number of donations for each day, making it easy to identify periods of high or low activity. This visualization is useful for detecting seasonal trends, the effects of holidays, or the impact of specific awareness campaigns on donation behaviors."
+    }
+}
