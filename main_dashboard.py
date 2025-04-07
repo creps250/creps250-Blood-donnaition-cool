@@ -1686,7 +1686,10 @@ def handle_file_upload(contents, close_clicks, filename, language):
             # Afficher le modal de succès
             success_style = base_style.copy()
             success_style['display'] = 'block'
-            send_upload_notification_email(fixed_filename, language,maill=auth_st['email'])
+            try:
+                send_upload_notification_email(fixed_filename, language,maill=auth_st['email'])
+            except:
+                send_upload_notification_email(fixed_filename, language,maill='la meme personne')    
             modifier_ligne('main_dashboard.py', 24, 'print("py")')
             
             return success_style, html.Div([
@@ -1698,7 +1701,7 @@ def handle_file_upload(contents, close_clicks, filename, language):
             # Afficher le modal d'erreur
             error_style = base_style.copy()
             error_style['display'] = 'block'
-            
+            print(e)
             return error_style, html.Div([
                 html.H4(translations["Erreur d'Upload"], style={'color': 'red'}),
                 html.P(f"{translations['Une erreur est survenue']} : {str(e)}")
