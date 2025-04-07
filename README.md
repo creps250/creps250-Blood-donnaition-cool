@@ -1,5 +1,5 @@
 #Lien vers la video de presentation du dashboard
-https://drive.google.com/file/d/1f3YdCKQFouseKJxDnLLBhh0EjSPVX8ma/vi
+https://drive.google.com/file/d/1f3YdCKQFouseKJxDnLLBhh0EjSPVX8ma/view?usp=sharing
 
 # lien vers le dashboard
 https://creps250-blood-donnaition-cool.onrender.com/
